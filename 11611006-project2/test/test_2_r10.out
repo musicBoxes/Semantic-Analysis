@@ -1,0 +1,4 @@
+Error type 1 at Line 13: people is not defined
+name int
+tom int
+i int

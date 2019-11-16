@@ -1,1 +1,4 @@
 Error type 1 at Line 5: x3 is not defined
+x1 int
+x2 int
+x4 int

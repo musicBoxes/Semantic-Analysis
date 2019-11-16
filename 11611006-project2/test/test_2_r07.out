@@ -1,0 +1,4 @@
+weight int
+round float
+aa int
+weight_test float

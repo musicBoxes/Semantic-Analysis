@@ -1,0 +1,6 @@
+age int
+height float
+code int
+weight float
+s int
+p int

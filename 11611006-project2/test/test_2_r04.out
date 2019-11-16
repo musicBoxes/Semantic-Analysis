@@ -1,8 +1,9 @@
-Error type 1 at Line 3: x is not defined
-Error type 1 at Line 3: y is not defined
-Error type 1 at Line 4: y is not defined
-Error type 1 at Line 4: x is not defined
-Error type 1 at Line 9: b is not defined
-Error type 1 at Line 9: a is not defined
-Error type 1 at Line 10: b is not defined
-Error type 1 at Line 10: a is not defined
+Function 
+Function 
+ÀRÊU
+Function P6ÀRÊU
+Function 0:ÀRÊU
+x int
+y int
+a int
+b int

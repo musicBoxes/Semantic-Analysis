@@ -1,1 +1,4 @@
-Error type 1 at Line 3: n is not defined
+Function 
+n int
+k int
+r int

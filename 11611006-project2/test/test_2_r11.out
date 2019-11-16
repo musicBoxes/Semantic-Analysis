@@ -1,9 +1,11 @@
-Error type 1 at Line 3: x is not defined
-Error type 1 at Line 3: y is not defined
-Error type 1 at Line 4: y is not defined
-Error type 1 at Line 4: x is not defined
-Error type 1 at Line 10: i is not defined
-Error type 1 at Line 12: m is not defined
-Error type 1 at Line 12: n is not defined
-Error type 1 at Line 16: m is not defined
-Error type 1 at Line 16: n is not defined
+Function 
+Function ðÊ¤üV
+Function Pö¤üV
+Function 0ú¤üV
+Function þ¤üV
+x int
+y int
+i int
+m int
+n int
+compare2 int
