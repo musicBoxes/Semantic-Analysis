@@ -12,7 +12,7 @@
 */
 typedef struct Type {
 	char name[32];
-	enum { PRIMITIVE, ARRAY, STRUCTURE } category;
+	enum { PRIMITIVE, ARRAY, STRUCTURE, DIFFERENT, IGNORE } category;
 	union { 
 		int primitive;
 		struct Array *array;

@@ -26,6 +26,10 @@
 	// return 0 if variable add successfully
 	// return 1 means error
 	int addVar(FieldList*, struct treeNode*, int);
+	
+	Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
+	Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno);
+	Type getExpType(struct treeNode* node, int lineno);
 %}
 %token TYPE ID CHAR FLOAT INT
 %token STRUCT IF ELSE WHILE FOR RETURN 
@@ -145,10 +149,22 @@ Dec: VarDec {
     | VarDec ASSIGN Exp { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); 
 		addVar(varList, $1, @$.first_line);
+		Type tmp = getExpType($3, @2.first_line);
+		if (!isSameType(&tmp, list_getLast(varList)->type)){
+			error_flag = 1;
+			printf("Error type 5 at Line %d: unmatching type on both sides of assignment", @2.first_line);
+		}
 	}
 //	| VarDec ASSIGN error { printf("Error type B at Line %d: VarDec ASSIGN error\n", @$.first_line); error_flag = 1; }
 	;
-Exp: Exp ASSIGN Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
+Exp: Exp ASSIGN Exp { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
+		Type type = isValidAssign($1, $3, @2.first_line);
+		if (type.category == DIFFERENT) {
+			error_flag = 1;
+			printf("Error type 5 at Line %d: unmatching type on both sides of assignment", @2.first_line);
+		}
+	}
     | Exp AND Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | Exp OR Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | Exp LT Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -261,6 +277,84 @@ int addFunc(FieldList* head, struct treeNode* node, int lineno){
 	list_pushBack(head, newItem);
 	
 	return 0;
+}
+
+Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno){
+	Type type_a, type_b;
+	type_a = getExpType(a, lineno);
+	type_b = getExpType(b, lineno);
+	Type type;
+	if (isSameType(&type_a, &type_b)){
+		return type_a;
+	}
+	else {
+		type.category = DIFFERENT;
+		return type;
+	}
+}
+
+Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno){
+	Type type_a, type_b;
+	type_a = getExpType(a, lineno);
+	type_b = getExpType(b, lineno);
+	Type type;
+	if (type_a.category == PRIMITIVE && (type_a.primitive == INT || type_a.primitive == FLOAT) && isSameType(&type_a, &type_b)){
+		return type_a;
+	}
+	else {
+		error_flag = 1;
+		printf("Error type 7 at Line %d: Invalid operation on non-number variables\n", lineno);
+		type.category = DIFFERENT;
+		return type;
+	}
+}
+
+Type getExpType(struct treeNode* node, int lineno){
+	Type type;
+	switch (node->childNum){
+		case 1: // ID INT CHAR FLOAT
+			switch (node->value[0]){
+				case 'I': // INT or ID
+					if (node->value[1] == 'D'){ // ID
+						FieldList* var;
+						if ((var = list_findByName(varList, node->value+4)) != NULL){ //"ID: "
+							return *(var->type);
+						}
+						else{ // not find this variable, just ignore it
+							type.category = IGNORE;
+							return type;
+						}
+					}
+					else { // INT
+						type.category = PRIMITIVE;
+						type.primitive = INT;
+						return type;
+					}
+					break;
+				case 'C': // CHAR
+					type.category = PRIMITIVE;
+					type.primitive = CHAR;
+					return type;
+					break;
+				case 'F': // FLOAT
+					type.category = PRIMITIVE;
+					type.primitive = FLOAT;
+					return type;
+					break;
+			}
+			break;
+		case 2: // only 'MINUS Exp' or 'NOT Exp'
+			return getExpType(node->child[1], lineno);
+			break;
+		case 3:
+			if (!strcmp(node->child[1]->value, "ASSIGN")){ // for ASSIGN operation, just ensure two Exp has same type
+				return isValidAssign(node->child[0], node->child[2], lineno);
+			}
+			else{
+				return isValidOperation(node->child[0], node->child[2], lineno);
+			}
+			break;
+	}
 }
 
 int main(){

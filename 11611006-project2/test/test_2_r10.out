@@ -1,5 +1,7 @@
-Error type 1 at Line 13: Variable 'people' is not defined
-Variable List
+Error type 5 at Line 10: unmatching type on both sides of assignmentError type 1 at Line 13: Variable 'people' is not defined
+Error type 7 at Line 13: Invalid operation on non-number variables
+Error type 5 at Line 13: unmatching type on both sides of assignmentError type 7 at Line 15: Invalid operation on non-number variables
+Error type 5 at Line 15: unmatching type on both sides of assignmentVariable List
 name int
 tom int
 i int

@@ -1,4 +1,6 @@
-Variable List
+Error type 5 at Line 9: unmatching type on both sides of assignmentError type 7 at Line 10: Invalid operation on non-number variables
+Error type 7 at Line 10: Invalid operation on non-number variables
+Error type 5 at Line 10: unmatching type on both sides of assignmentVariable List
 weight int
 round float
 aa int

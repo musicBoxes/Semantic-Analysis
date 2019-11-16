@@ -1,5 +1,6 @@
-Error type 1 at Line 5: Variable 'x3' is not defined
-Variable List
+Error type 5 at Line 3: unmatching type on both sides of assignmentError type 5 at Line 4: unmatching type on both sides of assignmentError type 1 at Line 5: Variable 'x3' is not defined
+Error type 7 at Line 5: Invalid operation on non-number variables
+Error type 5 at Line 5: unmatching type on both sides of assignmentVariable List
 x1 int
 x2 int
 x4 int
