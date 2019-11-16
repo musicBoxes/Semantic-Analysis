@@ -166,6 +166,14 @@ Exp: Exp ASSIGN Exp {
 			error_flag = 1;
 			printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", @2.first_line);
 		}
+		if ($1->childNum == 1) {
+			char str[5]; memset(str, 0, sizeof(str));
+			memcpy(str, $1->child[0]->value, sizeof(char)*4);
+			if (!strcmp(str, "INT:") || !strcmp(str, "CHAR") || !strcmp(str, "FLOA")){
+				error_flag = 1;
+				printf("Error type 6 at Line %d: rvalue on the left side of assignment operator\n", @1.first_line);
+			}
+		}
 	}
     | Exp AND Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | Exp OR Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
