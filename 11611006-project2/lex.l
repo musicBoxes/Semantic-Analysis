@@ -80,25 +80,3 @@ return { yylval = createLeaf("RETURN"); return RETURN; }
 [^ \n\r\t\(\)\.\{\};,!&\*\[\]\|\<>=\+-]* { printf("Error type A at line %d: Unknown lexeme \"%s\" \n", yylineno, yytext); error_flag = 1; }
 . { printf("Error type A at Line %d: Unknown characters %s\n", yylineno, yytext); }
 %%
-#ifndef MYTREE
-int main(int argc, char **argv){
-    char *file_path;
-    if(argc < 2){
-        fprintf(stderr, "Usage: %s <file_path>\n", argv[0]);
-        return EXIT_FAIL;
-    }
-    else if(argc == 2){
-        file_path = argv[1];
-        if(!(yyin = fopen(file_path, "r"))){
-            perror(argv[1]);
-            return EXIT_FAIL;
-        }
-        yylex();
-        return EXIT_OK;
-    }
-    else{
-        fputs("Too much arguments!\n", stderr);
-        return EXIT_FAIL;
-    }
-}
-#endif

@@ -9,3 +9,4 @@ for i in range(1, 3):
 	cmd = "./bin/splc < ./test/test_2_o%02d.spl > ./test/test_2_o%02d.out"%(i, i)
 	# print(cmd)
 	os.system(cmd)
+os.system("./bin/splc < ./test/self_test.spl > ./test/self_test.out")

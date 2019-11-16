@@ -1,0 +1,3 @@
+int aha(){
+	int a, b, c, d = 10, e[10];
+}

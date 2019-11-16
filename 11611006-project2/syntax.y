@@ -1,11 +1,26 @@
 %{
 	#include "tree.h"
 	#define YYSTYPE struct treeNode*
-    #include "lex.yy.c"
+	#include "list.h"
+	
+    #ifndef LEX
+	#define LEX
+	#include "lex.yy.c"
+	#endif
+	
 	int childNum;
 	int error_flag = 0;
+	int arraySize_flag = 0;
 	char errmsg[100];
+	
+	// temporary store
 	struct treeNode* childNodeList[10];
+	// global table
+	struct FieldList* globalVariableTable;
+	struct FieldList* varList;
+	struct FieldList* defList;
+	
+	Type baseType;
 	void yyerror(char*);
 %}
 %token TYPE ID CHAR FLOAT INT
@@ -16,12 +31,18 @@
 %right ASSIGN NOT
 %left OR AND LT LE GT GE EQ NE PLUS MINUS MUL DIV DOT LB RB LP RP
 %%
-Program: ExtDefList { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Program", @$.first_line); if (!error_flag) treePrint($$); }
+Program: ExtDefList { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Program", @$.first_line); 
+		//if (!error_flag) treePrint($$); 
+	}
     ;
 ExtDefList: ExtDef ExtDefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDefList", @$.first_line); }
     |  { $$=createEmpty(); }
     ;
-ExtDef: Specifier ExtDecList SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
+ExtDef: Specifier ExtDecList SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); 
+		treeParseLevel($2, &baseType, varList);
+	}
     | Specifier SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier FunDec CompSt { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier ExtDecList error { printf("Error type B at Line %d: Specifier ExtDecList error\n", @$.first_line); error_flag = 1; }
@@ -29,7 +50,24 @@ ExtDef: Specifier ExtDecList SEMI { childNum = 3; childNodeList[0]=$1; childNode
 ExtDecList: VarDec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line); }
     | VarDec COMMA ExtDecList { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line); }
     ;
-Specifier: TYPE { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); }
+Specifier: TYPE { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); 
+		baseType.category = PRIMITIVE;
+		// "TYPE :"
+		strcpy(baseType.name, $1->value+6);
+		switch (baseType.name[0]){
+			case 'i':
+				baseType.primitive = INT;
+				break;
+			case 'f':
+				baseType.primitive = FLOAT;
+				break;
+			case 'c':
+				baseType.primitive = CHAR;
+				break;
+		}
+		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
+	}
     | StructSpecifier { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); }
     ;
 StructSpecifier: STRUCT ID LC DefList RC { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); }
@@ -73,14 +111,21 @@ Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=crea
 DefList: Def DefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); }
     |  { $$=createEmpty(); }
     ;
-Def: Specifier DecList SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); }
+Def: Specifier DecList SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); 
+		treeParseLevel($2, &baseType, varList);
+		//treePrint($2);
+	}
     | Specifier DecList error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; }
 	;
 DecList: Dec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "DecList", @$.first_line); }
     | Dec COMMA DecList { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "DecList", @$.first_line); }
     ;
 Dec: VarDec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); }
-    | VarDec ASSIGN Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); }
+    | VarDec ASSIGN Exp { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); 
+		
+	}
 //	| VarDec ASSIGN error { printf("Error type B at Line %d: VarDec ASSIGN error\n", @$.first_line); error_flag = 1; }
 	;
 Exp: Exp ASSIGN Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -103,7 +148,13 @@ Exp: Exp ASSIGN Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; ch
     | ID LP RP { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | Exp LB Exp RB { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | Exp DOT ID { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
-    | ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
+    | ID { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
+		if (list_findByName(varList, $1->value+4) == NULL) { //"ID: "
+			error_flag = 1;
+			printf("Error type 1 at Line %d: %s is not defined\n", @$.first_line, $1->value+4);
+		}
+	}
     | INT { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | FLOAT { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | CHAR { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -126,6 +177,39 @@ void yyerror(char* s){
 	//printf("%s\n", s);
 }
 
+char* TypeToString(Type *type){
+	char* res;
+	switch (type->category){
+		case PRIMITIVE:
+			res = (char*)malloc(sizeof(char)*256);
+			sprintf(res, "%s", type->name);
+			return res;
+			break;
+		case ARRAY:
+			res = ArrayToString(type->array);
+			return res;
+			break;
+		case STRUCTURE:
+			break;
+	}
+	return res;
+}
+
+char* ArrayToString(Array *array){
+	char *res = (char*)malloc(sizeof(char)*256);
+	sprintf(res, "array baseTypeName=%s size=%d", array->base->name, array->size);
+	return res;
+}
+
+char *FieldListToString(FieldList* head){
+	FieldList* cur = head->next;
+	while (cur != NULL){
+		printf("%s %s\n", cur->name, TypeToString(cur->type));
+		cur = cur->next;
+	}
+}
+
 int main(){
+	varList = list_init();
     yyparse();
 }

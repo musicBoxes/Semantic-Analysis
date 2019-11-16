@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include "list.h"
 
 struct treeNode
 {
@@ -63,6 +64,47 @@ void treePrintLevel(struct treeNode *node, int depth)
 	printf("%s\n", node->value, node->childNum);
 	for (int i = 0; i < node->childNum; i ++)   
 		treePrintLevel((node->child)[i], depth+1);
+}
+
+int strToInt(char *str){
+	int res = 0;
+	while (*str != 0){
+		res = res * 10 + *str - '0';
+	}
+}
+
+void treeParseLevel(struct treeNode *node, Type *type, FieldList* varList)
+{
+	extern int arraySize_flag;
+	if (node == NULL || node->value == NULL) return;
+	char str[4]; memset(str, 0, sizeof(str));
+	memcpy(str, node->value, sizeof(char)*3);
+	// an array a[10]
+	/*if (!strcmp(node->value, "LB")){
+		arraySize_flag = 1;
+		return;
+	}
+	if (arraySize_flag && !strcmp(str, "INT")){
+		arraySize_flag = 0;
+		FieldList *last = list_getLast(varList);
+		Array *array = (Array*)malloc(sizeof(Array));
+		array->base = last->type;
+		array->size = strToInt(node->value+5); //"INT: "
+		last->type = (Type*)malloc(sizeof(Type));
+		last->type->category = ARRAY;
+		last->type->array = array;
+	}*/
+	// memcpy(str, node->value, sizeof(char)*4);
+	if (!strcmp(str, "ID:")){
+		// encounter an ID
+		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
+		newItem->type = (Type*)malloc(sizeof(Type));
+		memcpy(newItem->type, type, sizeof(Type));
+		strcpy(newItem->name, node->value+4);
+		list_pushBack(varList, newItem);
+	}
+	for (int i = 0 ; i < node->childNum; i ++)
+		treeParseLevel((node->child)[i], type, varList);
 }
  
 void treePrint(struct treeNode *node)
