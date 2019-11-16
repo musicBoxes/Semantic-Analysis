@@ -1,7 +1,5 @@
-Function  ÿjÿ‹U
-Function Ïjÿ‹U
-a int
+Error type 3 at Line 6: a is redefined
+Error type 3 at Line 12: a is redefined
 a int
 b int
 c int
-a int

@@ -1,4 +1,4 @@
+Error type 3 at Line 6: ttt is redefined
 ttt int
 iii float
 kkk float
-ttt float
