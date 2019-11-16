@@ -1,4 +1,9 @@
+Error type 4 at Line 7: Function 'compare' is redefined
+Variable List
 x int
 y int
 a int
 b int
+Function List
+compare int
+test_2_r04 int

@@ -1,5 +1,9 @@
+Variable List
 x int
 y int
 a float
 b float
 c float
+Function List
+compare int
+test_2_r09 int

@@ -18,7 +18,7 @@
 	// global table
 	struct FieldList* globalVariableTable;
 	struct FieldList* varList;
-	struct FieldList* defList;
+	struct FieldList* funcList;
 	
 	Type baseType;
 	void yyerror(char*);
@@ -85,8 +85,14 @@ StructSpecifier: STRUCT ID LC DefList RC { childNum = 5; childNodeList[0]=$1; ch
 VarDec: ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
     | VarDec LB INT RB { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
     ;
-FunDec: ID LP VarList RP { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); }
-    | ID LP RP { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); }
+FunDec: ID LP VarList RP { 
+		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
+		addFunc(funcList, $1, @1.first_line);
+	}
+    | ID LP RP { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
+		addFunc(funcList, $1, @1.first_line);
+	}
     | ID LP error { printf("Error type B at Line %d: Missing \")\"\n", @$.first_line); error_flag = 1; }
 	;
 VarList: ParamDec COMMA VarList { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "VarList", @$.first_line); }
@@ -110,7 +116,10 @@ StmtList: Stmt StmtList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2
     ;
 Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
     | CompSt { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
-    | RETURN Exp SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
+    | RETURN Exp SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		
+	}
     | IF LP Exp RP Stmt { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
     | IF LP Exp RP Stmt ELSE Stmt { childNum = 7; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
     | WHILE LP Exp RP Stmt { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
@@ -163,7 +172,7 @@ Exp: Exp ASSIGN Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; ch
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
 		if (list_findByName(varList, $1->value+4) == NULL) { //"ID: "
 			error_flag = 1;
-			printf("Error type 1 at Line %d: %s is not defined\n", @$.first_line, $1->value+4);
+			printf("Error type 1 at Line %d: Variable '%s' is not defined\n", @$.first_line, $1->value+4);
 		}
 	}
     | INT { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -224,7 +233,7 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
 	if (list_findByName(head, node->child[0]->value+4) != NULL){
 		error_flag = 1;
-		printf("Error type 3 at Line %d: %s is redefined\n", lineno, node->child[0]->value+4);
+		printf("Error type 3 at Line %d: Variable '%s' is redefined\n", lineno, node->child[0]->value+4);
 		return 1;
 	}
 	if (node->childNum == 1){ // just variable, not array
@@ -237,8 +246,29 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 	return 0;
 }
 
+int addFunc(FieldList* head, struct treeNode* node, int lineno){
+	// "ID: "
+	if (list_findByName(head, node->value+4) != NULL){
+		error_flag = 1;
+		printf("Error type 4 at Line %d: Function '%s' is redefined\n", lineno, node->value+4);
+		return 1;
+	}
+	
+	FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
+	newItem->type = (Type*)malloc(sizeof(Type));
+	memcpy(newItem->type, &baseType, sizeof(Type));
+	strcpy(newItem->name, node->value+4);
+	list_pushBack(head, newItem);
+	
+	return 0;
+}
+
 int main(){
 	varList = list_init();
+	funcList = list_init();
     yyparse();
+	printf("Variable List\n");
 	FieldListToString(varList);
+	printf("Function List\n");
+	FieldListToString(funcList);
 }

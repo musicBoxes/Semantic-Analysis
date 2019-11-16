@@ -1,5 +1,9 @@
-Error type 3 at Line 6: a is redefined
-Error type 3 at Line 12: a is redefined
+Error type 3 at Line 6: Variable 'a' is redefined
+Error type 3 at Line 12: Variable 'a' is redefined
+Variable List
 a int
 b int
 c int
+Function List
+foo int
+test_2_o01 int

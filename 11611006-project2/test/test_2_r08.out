@@ -1,3 +1,4 @@
+Variable List
 x int
 y int
 a int
@@ -5,3 +6,7 @@ b int
 i int
 m int
 n int
+Function List
+compare1 int
+compare2 int
+test_2_r08 int

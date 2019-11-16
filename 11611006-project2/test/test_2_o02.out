@@ -1,6 +1,9 @@
+Variable List
 age int
 height float
 code int
 weight float
 s int
 p int
+Function List
+test_2_o02 int
