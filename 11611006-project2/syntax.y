@@ -1,11 +1,27 @@
 %{
+	#include "list.h"
 	#include "tree.h"
 	#define YYSTYPE struct treeNode*
-    #include "lex.yy.c"
+    #ifndef LEX
+	#define LEX
+	#include "lex.yy.c"
+	#endif
+	
+	#define DEBUG
+	
 	int childNum;
 	int error_flag = 0;
-	char errmsg[100];
+	char typeName[32];
+	
+	// temporary store
 	struct treeNode* childNodeList[10];
+	// global table
+	struct FieldList* globalVariableTable;
+	struct FieldList* varList;
+	struct FieldList* defList;
+	
+	Type baseType;
+	
 	void yyerror(char*);
 %}
 %token TYPE ID CHAR FLOAT INT
@@ -16,12 +32,30 @@
 %right ASSIGN NOT
 %left OR AND LT LE GT GE EQ NE PLUS MINUS MUL DIV DOT LB RB LP RP
 %%
-Program: ExtDefList { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Program", @$.first_line); if (!error_flag) treePrint($$); }
+Program: ExtDefList { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Program", @$.first_line); 
+		//if (!error_flag) treePrint($$); 
+	}
     ;
 ExtDefList: ExtDef ExtDefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDefList", @$.first_line); }
     |  { $$=createEmpty(); }
     ;
-ExtDef: Specifier ExtDecList SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
+ExtDef: Specifier ExtDecList SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); 
+		linkVar();
+		/*FieldList* cur = varList->next;
+		Type *type;
+		while (cur != NULL){
+			if (cur->type == NULL){ // not Array
+				type = (struct Type*)malloc(sizeof(struct Type)); 
+				(*type) = baseType;
+			}
+			else{ // is Array
+				*(cur->type->array->base) = baseType;
+			}
+		}
+		list_link(globalVariableTable, varList);*/
+	}
     | Specifier SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier FunDec CompSt { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier ExtDecList error { printf("Error type B at Line %d: Specifier ExtDecList error\n", @$.first_line); error_flag = 1; }
@@ -29,14 +63,58 @@ ExtDef: Specifier ExtDecList SEMI { childNum = 3; childNodeList[0]=$1; childNode
 ExtDecList: VarDec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line); }
     | VarDec COMMA ExtDecList { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line); }
     ;
-Specifier: TYPE { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); }
-    | StructSpecifier { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); }
+Specifier: TYPE { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); 
+		baseType.category = PRIMITIVE;
+		// "TYPE :"
+		strcpy(baseType.name, $1->value+6);
+		switch (baseType.name[0]){
+			case 'I':
+				baseType.primitive = INT;
+				break;
+			case 'F':
+				baseType.primitive = FLOAT;
+				break;
+			case 'C':
+				baseType.primitive = CHAR;
+				break;
+		}
+	}
+    | StructSpecifier { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); 
+	}
     ;
-StructSpecifier: STRUCT ID LC DefList RC { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); }
-    | STRUCT ID { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); }
+StructSpecifier: STRUCT ID LC DefList RC { 
+		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
+		baseType.category = STRUCTURE;
+		strcpy(baseType.name, $2);
+		baseType.structure = NULL;
+	}
+    | STRUCT ID { 
+		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
+		baseType.category = STRUCTURE;
+		strcpy(baseType.name, $2);
+		baseType.structure = NULL;
+	}
     ;
-VarDec: ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
-    | VarDec LB INT RB { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
+VarDec: ID { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); 
+		FieldList* var = (FieldList*)malloc(sizeof(FieldList)); 
+		strcpy(var->name, $1->value); 
+		var->type = var->next = NULL;
+		list_pushBack(varList, var);
+	}
+    | VarDec LB INT RB { 
+		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); 
+		FieldList* var = list_getLast(varList); 
+		Array *array = (Array*)malloc(sizeof(Array)); 
+		array->size = $3; 
+		array->base = (Type*)malloc(sizeof(Type));
+		Type* varType = (Type*)malloc(sizeof(Type));
+		varType->category = ARRAY;
+		varType->array = array;
+		var->type = varType;
+	}
     ;
 FunDec: ID LP VarList RP { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); }
     | ID LP RP { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); }
@@ -56,7 +134,6 @@ DefStmtList: Def StmtList
 	;
 StmtList: Stmt StmtList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StmtList", @$.first_line); }
     |  { $$=createEmpty(); }
-//	| Def DefList { printf("Error type B at Line %d: Definition must at head.\n", @$.first_line); error_flag = 1; }
     ;
 Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
     | CompSt { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
@@ -70,10 +147,15 @@ Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=crea
 	| FOR LP Def ExpListEx SEMI ExpListEx RP Stmt { childNum = 8; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
 	| FOR LP ExpListEx SEMI ExpListEx SEMI ExpListEx RP Stmt { childNum = 9; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; childNodeList[8]=$9; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
 	;
-DefList: Def DefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); }
+DefList: Def DefList { 
+		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); 
+	}
     |  { $$=createEmpty(); }
     ;
-Def: Specifier DecList SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); }
+Def: Specifier DecList SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); 
+		FieldListToString(varList);
+	}
     | Specifier DecList error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; }
 	;
 DecList: Dec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "DecList", @$.first_line); }
@@ -126,6 +208,26 @@ void yyerror(char* s){
 	//printf("%s\n", s);
 }
 
+void linkVar(){
+	FieldList* cur = varList->next;
+	Type *type;
+	while (cur != NULL){
+		if (cur->type == NULL){ // not Array
+			type = (struct Type*)malloc(sizeof(struct Type)); 
+			(*type) = baseType;
+		}
+		else{ // is Array
+			*(cur->type->array->base) = baseType;
+		}
+	}
+	list_link(globalVariableTable, varList);
+}
+
 int main(){
+	globalVariableTable = list_init();
+	varList = list_init();
     yyparse();
+	#ifdef DEBUG
+	FieldListToString(globalVariableTable);
+	#endif
 }
