@@ -36,6 +36,7 @@ char* ArrayToString(Array *array);
 char *FieldListToString(FieldList* head);
 
 int isSameType(const Type *a, const Type *b){
+	if (a->category == IGNORE || b->category == IGNORE) return 1;
 	if (a->category != b->category) return 0;
 	switch (a->category){
 		struct FieldList *aFiledList, *bFiledList;

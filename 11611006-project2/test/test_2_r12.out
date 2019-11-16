@@ -1,7 +1,8 @@
-Error type 5 at Line 5: unmatching type on both sides of assignmentError type 5 at Line 6: unmatching type on both sides of assignmentError type 1 at Line 9: Variable 'arr1' is not defined
-Error type 7 at Line 10: Invalid operation on non-number variables
-Error type 5 at Line 10: unmatching type on both sides of assignmentError type 1 at Line 15: Variable 'arr2' is not defined
+Error type 1 at Line 9: Variable 'arr1' is not defined
+Error type 5 at Line 9: unmatching type on both sides of assignment
+Error type 1 at Line 15: Variable 'arr2' is not defined
 Error type 1 at Line 15: Variable 'arr1' is not defined
+Error type 5 at Line 15: unmatching type on both sides of assignment
 Variable List
 a float
 i int

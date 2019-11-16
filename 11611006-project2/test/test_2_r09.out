@@ -1,4 +1,4 @@
-Error type 5 at Line 9: unmatching type on both sides of assignmentError type 5 at Line 10: unmatching type on both sides of assignmentError type 5 at Line 11: unmatching type on both sides of assignmentVariable List
+Variable List
 x int
 y int
 a float

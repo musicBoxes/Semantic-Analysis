@@ -1,19 +1,4 @@
-Error type 7 at Line 15: Invalid operation on non-number variables
-Error type 7 at Line 15: Invalid operation on non-number variables
-Error type 5 at Line 15: unmatching type on both sides of assignmentError type 7 at Line 16: Invalid operation on non-number variables
-Error type 7 at Line 16: Invalid operation on non-number variables
-Error type 5 at Line 16: unmatching type on both sides of assignmentError type 7 at Line 17: Invalid operation on non-number variables
-Error type 5 at Line 17: unmatching type on both sides of assignmentError type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 5 at Line 18: unmatching type on both sides of assignmentError type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 5 at Line 19: unmatching type on both sides of assignmentError type 7 at Line 20: Invalid operation on non-number variables
-Error type 7 at Line 20: Invalid operation on non-number variables
-Error type 5 at Line 20: unmatching type on both sides of assignmentVariable List
+Variable List
 name int
 age int
 c int

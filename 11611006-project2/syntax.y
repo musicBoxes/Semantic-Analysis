@@ -150,9 +150,11 @@ Dec: VarDec {
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); 
 		addVar(varList, $1, @$.first_line);
 		Type tmp = getExpType($3, @2.first_line);
+		//Type *last = list_getLast(varList)->type;
+		//printf("tmp %d %d last %d %d\n", tmp.category, tmp.primitive, last->category, last->primitive);
 		if (!isSameType(&tmp, list_getLast(varList)->type)){
 			error_flag = 1;
-			printf("Error type 5 at Line %d: unmatching type on both sides of assignment", @2.first_line);
+			printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", @2.first_line);
 		}
 	}
 //	| VarDec ASSIGN error { printf("Error type B at Line %d: VarDec ASSIGN error\n", @$.first_line); error_flag = 1; }
@@ -162,7 +164,7 @@ Exp: Exp ASSIGN Exp {
 		Type type = isValidAssign($1, $3, @2.first_line);
 		if (type.category == DIFFERENT) {
 			error_flag = 1;
-			printf("Error type 5 at Line %d: unmatching type on both sides of assignment", @2.first_line);
+			printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", @2.first_line);
 		}
 	}
     | Exp AND Exp { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -257,6 +259,8 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 		newItem->type = (Type*)malloc(sizeof(Type));
 		memcpy(newItem->type, &baseType, sizeof(Type));
 		strcpy(newItem->name, node->child[0]->value+4);
+		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
+		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, newItem->type->primitive, newItem->type->name);
 		list_pushBack(head, newItem);
 	}
 	return 0;
@@ -297,6 +301,8 @@ Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno){
 	Type type_a, type_b;
 	type_a = getExpType(a, lineno);
 	type_b = getExpType(b, lineno);
+	if (type_a.category == IGNORE) return type_a;
+	if (type_b.category == IGNORE) return type_b;
 	Type type;
 	if (type_a.category == PRIMITIVE && (type_a.primitive == INT || type_a.primitive == FLOAT) && isSameType(&type_a, &type_b)){
 		return type_a;
@@ -313,14 +319,17 @@ Type getExpType(struct treeNode* node, int lineno){
 	Type type;
 	switch (node->childNum){
 		case 1: // ID INT CHAR FLOAT
-			switch (node->value[0]){
+			//printf("node value = %s\n", node->child[0]->value);
+			switch (node->child[0]->value[0]){
 				case 'I': // INT or ID
-					if (node->value[1] == 'D'){ // ID
+					if (node->child[0]->value[1] == 'D'){ // ID
 						FieldList* var;
-						if ((var = list_findByName(varList, node->value+4)) != NULL){ //"ID: "
+						if ((var = list_findByName(varList, node->child[0]->value+4)) != NULL){ //"ID: "
 							return *(var->type);
 						}
 						else{ // not find this variable, just ignore it
+							//printf("Ignore it!\n");
+							//printf("node value = %s\n", node->value);
 							type.category = IGNORE;
 							return type;
 						}

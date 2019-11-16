@@ -1,8 +1,4 @@
-Error type 7 at Line 9: Invalid operation on non-number variables
-Error type 5 at Line 9: unmatching type on both sides of assignmentError type 7 at Line 10: Invalid operation on non-number variables
-Error type 5 at Line 10: unmatching type on both sides of assignmentError type 7 at Line 11: Invalid operation on non-number variables
-Error type 5 at Line 11: unmatching type on both sides of assignmentError type 7 at Line 12: Invalid operation on non-number variables
-Error type 5 at Line 12: unmatching type on both sides of assignmentVariable List
+Variable List
 name int
 height int
 gg int

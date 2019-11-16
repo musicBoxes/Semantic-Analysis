@@ -1,4 +1,4 @@
-Error type 5 at Line 3: unmatching type on both sides of assignmentVariable List
+Variable List
 i int
 n int
 res int
