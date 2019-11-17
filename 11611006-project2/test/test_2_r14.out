@@ -1,8 +1,16 @@
-Error type 7 at Line 9: Invalid operation on non-number variables
 Error type 5 at Line 9: unmatching type on both sides of assignment
-Error type 7 at Line 10: Invalid operation on non-number variables
 Error type 5 at Line 10: unmatching type on both sides of assignment
-Error type 7 at Line 11: Invalid operation on non-number variables
 Error type 5 at Line 11: unmatching type on both sides of assignment
-Error type 7 at Line 12: Invalid operation on non-number variables
 Error type 5 at Line 12: unmatching type on both sides of assignment
+Variable List
+FieldList in Struct: 2
+Name:name Type:int
+Name:height Type:int
+Name:gg Type:struct
+Function List
+Name:test_2_r14 Type:int
+Struct List
+FieldList in Struct: 2
+Name:name Type:int
+Name:height Type:int
+Name:Girl Type:struct

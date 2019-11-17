@@ -1,4 +1,14 @@
 Error type 1 at Line 13: Variable 'people' is not defined
-Error type 7 at Line 13: Invalid operation on non-number variables
 Error type 5 at Line 13: unmatching type on both sides of assignment
 Error type 5 at Line 14: unmatching type on both sides of assignment
+Variable List
+FieldList in Struct: 1
+Name:name Type:int
+Name:tom Type:struct
+Name:i Type:int
+Function List
+Name:test_2_r10 Type:int
+Struct List
+FieldList in Struct: 1
+Name:name Type:int
+Name:Person Type:struct

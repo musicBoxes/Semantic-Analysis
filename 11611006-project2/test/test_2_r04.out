@@ -1,1 +1,10 @@
 Error type 4 at Line 7: Function 'compare' is redefined
+Variable List
+Name:x Type:int
+Name:y Type:int
+Name:a Type:int
+Name:b Type:int
+Function List
+Name:compare Type:int
+Name:test_2_r04 Type:int
+Struct List

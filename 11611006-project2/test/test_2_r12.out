@@ -3,3 +3,9 @@ Error type 5 at Line 9: unmatching type on both sides of assignment
 Error type 1 at Line 15: Variable 'arr2' is not defined
 Error type 1 at Line 15: Variable 'arr1' is not defined
 Error type 5 at Line 15: unmatching type on both sides of assignment
+Variable List
+Name:a Type:float
+Name:i Type:int
+Function List
+Name:test_2_r12 Type:int
+Struct List

@@ -1,1 +1,8 @@
 Error type 3 at Line 6: Variable 'ttt' is redefined
+Variable List
+Name:ttt Type:int
+Name:iii Type:float
+Name:kkk Type:float
+Function List
+Name:test_2_r03 Type:int
+Struct List

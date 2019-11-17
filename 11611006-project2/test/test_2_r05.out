@@ -1,1 +1,8 @@
 Error type 5 at Line 6: unmatching type on both sides of assignment
+Variable List
+Name:iii Type:float
+Name:kkk Type:float
+Name:ttt Type:int
+Function List
+Name:test_2_r05 Type:int
+Struct List

@@ -1,21 +1,32 @@
-Error type 7 at Line 15: Invalid operation on non-number variables
-Error type 7 at Line 15: Invalid operation on non-number variables
 Error type 5 at Line 15: unmatching type on both sides of assignment
-Error type 7 at Line 16: Invalid operation on non-number variables
-Error type 7 at Line 16: Invalid operation on non-number variables
 Error type 5 at Line 16: unmatching type on both sides of assignment
-Error type 7 at Line 17: Invalid operation on non-number variables
 Error type 5 at Line 17: unmatching type on both sides of assignment
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 7 at Line 18: Invalid operation on non-number variables
-Error type 5 at Line 18: unmatching type on both sides of assignment
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 7 at Line 19: Invalid operation on non-number variables
-Error type 5 at Line 19: unmatching type on both sides of assignment
-Error type 7 at Line 20: Invalid operation on non-number variables
-Error type 7 at Line 20: Invalid operation on non-number variables
-Error type 5 at Line 20: unmatching type on both sides of assignment
+Variable List
+FieldList in Struct: 2
+FieldList in Struct: 2
+Name:name Type:int
+Name:age Type:int
+Name:c Type:struct
+Name:cc Type:int
+Name:father Type:struct
+FieldList in Struct: 2
+FieldList in Struct: 2
+Name:name Type:int
+Name:age Type:int
+Name:c Type:struct
+Name:cc Type:int
+Name:mother Type:struct
+Function List
+Name:test_2_r13 Type:int
+Struct List
+FieldList in Struct: 2
+Name:name Type:int
+Name:age Type:int
+Name:Child Type:struct
+FieldList in Struct: 2
+FieldList in Struct: 2
+Name:name Type:int
+Name:age Type:int
+Name:c Type:struct
+Name:cc Type:int
+Name:Parent Type:struct

@@ -31,7 +31,7 @@
 	
 	FieldList* varExist(char *name);
 	int addVar(FieldList*, struct treeNode*, int);
-	int addFunc(FieldList* head, struct treeNode* node, int lineno);
+	int addFuncStruct(FieldList* head, struct treeNode* node, int lineno);
 	
 	Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
 	Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno);
@@ -63,11 +63,11 @@ ExtDef: Specifier ExtDecList SEMI {
 	;
 ExtDecList: VarDec { 
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line);
-		addVar(varList, $1, @$.first_line);
+		addVar(tmpList, $1, @$.first_line);
 	}
     | VarDec COMMA ExtDecList { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDecList", @$.first_line); 
-		addVar(varList, $1, @$.first_line);
+		addVar(tmpList, $1, @$.first_line);
 	}
     ;
 Specifier: TYPE { 
@@ -90,18 +90,23 @@ Specifier: TYPE {
 	}
     | StructSpecifier { 
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); 
-		baseType.category = STRUCTURE;
-		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
 	}
     ;
 StructSpecifier: STRUCT ID LC DefList RC { 
 		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
 		struct_flag = 1;
-		//list_pushBack(structList, );
+		baseType.category = STRUCTURE;
+		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
+		list_link(baseType.structure, tmpList);
+		addFuncStruct(structList, $2, @2.first_line);
 	}
     | STRUCT ID { 
 		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
-		
+		FieldList *structType;
+		//"ID: "
+		if ((structType = list_findByName(structList, $2->value+4)) != NULL){
+			baseType = *(structType->type);
+		}
 	}
     ;
 VarDec: ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
@@ -109,11 +114,11 @@ VarDec: ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNod
     ;
 FunDec: ID LP VarList RP { 
 		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
-		addFunc(funcList, $1, @1.first_line);
+		addFuncStruct(funcList, $1, @1.first_line);
 	}
     | ID LP RP { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
-		addFunc(funcList, $1, @1.first_line);
+		addFuncStruct(funcList, $1, @1.first_line);
 	}
     | ID LP error { printf("Error type B at Line %d: Missing \")\"\n", @$.first_line); error_flag = 1; }
 	;
@@ -128,6 +133,7 @@ ParamDec: Specifier VarDec {
 CompSt: LC DefList StmtList RC { 
 		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "CompSt", @$.first_line); 
 		//printf("DefList %d %d\n", list_size(varList), list_size(tmpList));
+		//printf("tmpList %s\n", tmpList->next->name);
 		list_link(varList, tmpList);
 	}
 	| LC DefList StmtList error { printf("Error type B at Line %d: Missing \"}\"\n", @$.first_line); error_flag = 1; }
@@ -260,6 +266,9 @@ char* TypeToString(Type *type){
 			return res;
 			break;
 		case STRUCTURE:
+			printf("FieldList in Struct: %d\n", list_size(type->structure));
+			FieldListToString(type->structure);
+			return "struct";
 			break;
 	}
 	return res;
@@ -274,7 +283,7 @@ char* ArrayToString(Array *array){
 char *FieldListToString(FieldList* head){
 	FieldList* cur = head->next;
 	while (cur != NULL){
-		printf("%s %s\n", cur->name, TypeToString(cur->type));
+		printf("Name:%s Type:%s\n", cur->name, TypeToString(cur->type));
 		cur = cur->next;
 	}
 }
@@ -302,15 +311,15 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 		newItem->type = (Type*)malloc(sizeof(Type));
 		memcpy(newItem->type, &baseType, sizeof(Type));
 		strcpy(newItem->name, node->child[0]->value+4);
-		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
-		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, newItem->type->primitive, newItem->type->name);
+		//printf("BaseType INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, baseType.category, baseType.primitive, baseType.name);
+		//printf("NewItem  INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, newItem->type->category, newItem->type->primitive, newItem->type->name);
 		newItem->next = NULL;
 		list_pushBack(head, newItem);
 	}
 	return 0;
 }
 
-int addFunc(FieldList* head, struct treeNode* node, int lineno){
+int addFuncStruct(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
 	if (list_findByName(head, node->value+4) != NULL){
 		error_flag = 1;
@@ -325,6 +334,9 @@ int addFunc(FieldList* head, struct treeNode* node, int lineno){
 	newItem->next = NULL;
 	list_pushBack(head, newItem);
 	
+	//printf("BaseType INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, baseType.category, baseType.primitive, baseType.name);
+	//printf("NewItem  INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, newItem->type->category, newItem->type->primitive, newItem->type->name);
+
 	return 0;
 }
 
@@ -348,6 +360,7 @@ Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno){
 	type_b = getExpType(b, lineno);
 	if (type_a.category == IGNORE) return type_a;
 	if (type_b.category == IGNORE) return type_b;
+	//printf("a %d %d b %d %d\n", type_a.category, type_a.primitive, type_b.category, type_b.primitive);
 	Type type;
 	if (type_a.category == PRIMITIVE && (type_a.primitive == INT || type_a.primitive == FLOAT) && isSameType(&type_a, &type_b)){
 		return type_a;
@@ -405,7 +418,13 @@ Type getExpType(struct treeNode* node, int lineno){
 				return isValidAssign(node->child[0], node->child[2], lineno);
 			}
 			else{
-				return isValidOperation(node->child[0], node->child[2], lineno);
+				//printf("Operation: %s\n", node->child[1]->value);
+				if (!strcmp("DOT", node->child[1]->value)){
+					
+				}
+				else{
+					return isValidOperation(node->child[0], node->child[2], lineno);
+				}
 			}
 			break;
 	}
@@ -415,12 +434,15 @@ int main(){
 	tmpList = list_init();
 	varList = list_init();
 	funcList = list_init();
+	structList = list_init();
     yyparse();
-	//#define DEBUG
+	#define DEBUG
 	#ifdef DEBUG
 	printf("Variable List\n");
 	FieldListToString(varList);
 	printf("Function List\n");
 	FieldListToString(funcList);
+	printf("Struct List\n");
+	FieldListToString(structList);
 	#endif
 }

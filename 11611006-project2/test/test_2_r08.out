@@ -1,0 +1,13 @@
+Variable List
+Name:x Type:int
+Name:y Type:int
+Name:a Type:int
+Name:b Type:int
+Name:i Type:int
+Name:m Type:int
+Name:n Type:int
+Function List
+Name:compare1 Type:int
+Name:compare2 Type:int
+Name:test_2_r08 Type:int
+Struct List
