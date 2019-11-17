@@ -1,6 +1,5 @@
 Error type 3 at Line 6: Variable 'a' is redefined
-Error type 7 at Line 9: Invalid operation on non-number variables
-Error type 5 at Line 9: unmatching type on both sides of assignment
+function return type: int
 Error type 3 at Line 12: Variable 'a' is redefined
 Variable List
 Name:a Type:int

@@ -1,3 +1,4 @@
+Error type 8 at Line 21: the function’s return value type mismatches the declared type
 Variable List
 Name:x Type:int
 Name:y Type:int
@@ -8,6 +9,6 @@ Name:m Type:int
 Name:n Type:int
 Function List
 Name:compare1 Type:int
-Name:compare2 Type:int
+Name:compare2 Type:float
 Name:test_2_r08 Type:int
 Struct List

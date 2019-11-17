@@ -26,7 +26,10 @@ typedef struct Array {
 } Array;
 
 typedef struct FieldList {
-	char name[32];
+	union{
+		int lineno;
+		char name[32];
+	};
 	struct Type *type;
 	struct FieldList *next;
 } FieldList;
@@ -108,5 +111,13 @@ FieldList* list_findByName(FieldList *head, char *name){
 		cur = cur->next;
 	}
 	return NULL;
+}
+
+void list_clear(FieldList* head){
+	FieldList* cur = head->next;
+	head->next = NULL;
+	while (cur != NULL){
+		cur = cur->next;
+	}
 }
 #endif
