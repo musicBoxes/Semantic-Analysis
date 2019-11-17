@@ -1,11 +1,10 @@
 Error type 3 at Line 6: Variable 'a' is redefined
-function return type: int
+function return type: INT
 Error type 3 at Line 12: Variable 'a' is redefined
 Variable List
-Name:a Type:int
-Name:b Type:int
-Name:c Type:int
+Name:a Type:INT
+Name:c Type:INT
 Function List
-Name:foo Type:int
-Name:test_2_o01 Type:int
+Name:foo Type:INT
+Name:test_2_o01 Type:INT
 Struct List

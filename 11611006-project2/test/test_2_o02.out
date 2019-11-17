@@ -1,21 +1,21 @@
 Error type 5 at Line 15: unmatching type on both sides of assignment
 Variable List
 FieldList in Struct: 2
-Name:age Type:int
-Name:height Type:float
+Name:age Type:INT
+Name:height Type:FLOAT
 Name:s Type:struct
 FieldList in Struct: 2
-Name:code Type:int
-Name:weight Type:float
+Name:code Type:INT
+Name:weight Type:FLOAT
 Name:p Type:struct
 Function List
-Name:test_2_o02 Type:int
+Name:test_2_o02 Type:INT
 Struct List
 FieldList in Struct: 2
-Name:age Type:int
-Name:height Type:float
+Name:age Type:INT
+Name:height Type:FLOAT
 Name:Student Type:struct
 FieldList in Struct: 2
-Name:code Type:int
-Name:weight Type:float
+Name:code Type:INT
+Name:weight Type:FLOAT
 Name:Person Type:struct

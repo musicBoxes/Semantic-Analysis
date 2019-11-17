@@ -1,14 +1,7 @@
-Error type 8 at Line 21: the function’s return value type mismatches the declared type
+Error type 8 at Line 21: Function’s return value type mismatches the declared type
 Variable List
-Name:x Type:int
-Name:y Type:int
-Name:a Type:int
-Name:b Type:int
-Name:i Type:int
-Name:m Type:int
-Name:n Type:int
 Function List
-Name:compare1 Type:int
-Name:compare2 Type:float
-Name:test_2_r08 Type:int
+Name:compare1 Type:INT
+Name:compare2 Type:FLOAT
+Name:test_2_r08 Type:INT
 Struct List

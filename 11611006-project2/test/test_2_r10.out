@@ -2,12 +2,12 @@ Error type 1 at Line 13: Variable 'people' is not defined
 Error type 5 at Line 13: unmatching type on both sides of assignment
 Variable List
 FieldList in Struct: 1
-Name:name Type:int
+Name:name Type:INT
 Name:tom Type:struct
-Name:i Type:int
+Name:i Type:INT
 Function List
-Name:test_2_r10 Type:int
+Name:test_2_r10 Type:INT
 Struct List
 FieldList in Struct: 1
-Name:name Type:int
+Name:name Type:INT
 Name:Person Type:struct

@@ -1,8 +1,8 @@
 Error type 5 at Line 6: unmatching type on both sides of assignment
 Variable List
-Name:iii Type:float
-Name:kkk Type:float
-Name:ttt Type:int
+Name:iii Type:FLOAT
+Name:kkk Type:FLOAT
+Name:ttt Type:INT
 Function List
-Name:test_2_r05 Type:int
+Name:test_2_r05 Type:INT
 Struct List

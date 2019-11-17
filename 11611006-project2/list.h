@@ -26,9 +26,10 @@ typedef struct Array {
 } Array;
 
 typedef struct FieldList {
+	char name[32];
 	union{
 		int lineno;
-		char name[32];
+		struct FieldList* args;
 	};
 	struct Type *type;
 	struct FieldList *next;
@@ -103,7 +104,12 @@ void list_link(FieldList *firstHead, FieldList *secondHead){
 	secondHead->next = NULL;
 }
 
+void list_commonLink(FieldList *firstHead, FieldList *secondHead){
+	list_getLast(firstHead)->next = secondHead->next;
+}
+
 FieldList* list_findByName(FieldList *head, char *name){
+	if (head == NULL) return NULL;
 	FieldList* cur = head->next;
 	while (cur != NULL){
 		if (!strcmp(cur->name, name))

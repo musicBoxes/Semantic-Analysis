@@ -1,8 +1,6 @@
 Error type 6 at Line 6: rvalue on the left side of assignment operator
 Variable List
-Name:i Type:int
-Name:n Type:int
-Name:res Type:int
+Name:res Type:INT
 Function List
-Name:test_2_r06 Type:int
+Name:test_2_r06 Type:INT
 Struct List

@@ -2,14 +2,14 @@ Error type 7 at Line 10: Invalid operation on non-number variables
 Error type 5 at Line 10: unmatching type on both sides of assignment
 Variable List
 FieldList in Struct: 2
-Name:weight Type:int
-Name:round Type:float
+Name:weight Type:INT
+Name:round Type:FLOAT
 Name:aa Type:struct
-Name:weight_test Type:float
+Name:weight_test Type:FLOAT
 Function List
-Name:test_2_r07 Type:int
+Name:test_2_r07 Type:INT
 Struct List
 FieldList in Struct: 2
-Name:weight Type:int
-Name:round Type:float
+Name:weight Type:INT
+Name:round Type:FLOAT
 Name:Apple Type:struct

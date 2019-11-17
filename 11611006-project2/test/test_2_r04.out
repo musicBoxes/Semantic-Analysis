@@ -1,11 +1,7 @@
 Error type 4 at Line 7: Function 'compare' is redefined
-Error type 8 at Line 15: the function’s return value type mismatches the declared type
+Error type 8 at Line 15: Function’s return value type mismatches the declared type
 Variable List
-Name:x Type:int
-Name:y Type:int
-Name:a Type:int
-Name:b Type:int
 Function List
-Name:compare Type:float
-Name:test_2_r04 Type:int
+Name:compare Type:FLOAT
+Name:test_2_r04 Type:INT
 Struct List

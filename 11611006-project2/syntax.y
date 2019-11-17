@@ -22,6 +22,7 @@
 	struct FieldList* varList;
 	struct FieldList* funcList;
 	struct FieldList* retList;
+	struct FieldList* funcArgs;
 	struct FieldList* structList;
 	
 	
@@ -72,7 +73,7 @@ ExtDef: Specifier ExtDecList SEMI {
 		// delete member after checking
 		while (ret != NULL){
 			if (!isSameType(ret->type, &funcRetType)){
-				printf("Error type 8 at Line %d: the function’s return value type mismatches the declared type\n", ret->lineno);
+				printf("Error type 8 at Line %d: Function’s return value type mismatches the declared type\n", ret->lineno);
 			}
 			ret = ret->next;
 		}
@@ -135,11 +136,15 @@ FunDec: ID LP VarList RP {
 		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
 		addFuncStruct(funcList, $1, &funcRetType, @1.first_line);
 		curFunc = list_getLast(funcList);
+		curFunc->args = (FieldList*)malloc(sizeof(FieldList));
+		//list_commonLink(varList, tmpList);
+		list_link(curFunc->args, tmpList);
 	}
     | ID LP RP { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "FunDec", @$.first_line); 
 		addFuncStruct(funcList, $1, &funcRetType, @1.first_line);
 		curFunc = list_getLast(funcList);
+		curFunc->args = NULL;
 	}
     | ID LP error { printf("Error type B at Line %d: Missing \")\"\n", @$.first_line); error_flag = 1; }
 	;
@@ -148,9 +153,7 @@ VarList: ParamDec COMMA VarList { childNum = 3; childNodeList[0]=$1; childNodeLi
     ;
 ParamDec: Specifier VarDec { 
 		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ParamDec", @$.first_line); 
-		// record function return type before baseType be rewriten
-		//funcRetType = baseType;
-		addVar(varList, $2, @$.first_line);
+		addVar(tmpList, $2, @$.first_line);
 	}
     ;
 CompSt: LC DefList StmtList RC { 
@@ -252,10 +255,28 @@ Exp: Exp ASSIGN Exp {
     | ID LP Args RP { 
 		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
 		//printf("Size = %d %s\n", list_size(funcList), $1->value+4);
-		if (list_findByName(funcList, $1->value+4) == NULL) { // "ID: "
+		FieldList* func;
+		if ((func = list_findByName(funcList, $1->value+4)) == NULL) { // "ID: "
 			error_flag = 1;
 			printf("Error type 2 at Line %d: Function '%s' is invoked without definition\n", @1.first_line, $1->value+4);
 		}
+		else{
+			FieldList *cur1 = func->args->next, *cur2 = funcArgs->next;
+			int ok = 1;
+			//printf("Size %d %d\n", list_size(func->args), list_size(funcArgs));
+			while (cur1 != NULL && cur2 != NULL){
+				if (!isSameType(cur1->type, cur1->type)){
+					ok = 0;
+					break;
+				}
+				cur1 = cur1->next;
+				cur2 = cur2->next;
+			}
+			if (!ok || (cur1 == NULL && cur2 != NULL) || (cur1 != NULL && cur2 == NULL)){
+				printf("Error type 9 at Line %d: Function’s arguments mismatch the declared parameters\n", @3.first_line);
+			}
+		}
+		list_clear(funcArgs);
 	}
     | ID LP RP { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
@@ -286,8 +307,26 @@ ExpList: Exp { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childN
 ExpListEx: ExpList { $$=$1; }
 	| { $$ = createEmpty(); }
 	;
-Args: Exp COMMA Args { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Args", @$.first_line); }
-    | Exp { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Args", @$.first_line); }
+Args: Exp COMMA Args { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Args", @$.first_line); 
+		FieldList* arg = (FieldList*)malloc(sizeof(FieldList));
+		arg->next = NULL;
+		arg->type = (Type*)malloc(sizeof(Type));
+		Type type = getExpType($1, @1.first_line);
+		memcpy(arg->type, &type, sizeof(type));
+		//printf("type %s", TypeToString(arg->type));
+		list_pushBack(funcArgs, arg);
+	}
+    | Exp { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Args", @$.first_line); 
+		FieldList* arg = (FieldList*)malloc(sizeof(FieldList));
+		arg->next = NULL;
+		arg->type = (Type*)malloc(sizeof(Type));
+		Type type = getExpType($1, @1.first_line);
+		memcpy(arg->type, &type, sizeof(type));
+		//printf("type %d %d %s\n", type.category, type.primitive, TypeToString(&type));
+		list_pushBack(funcArgs, arg);
+	}
     ;
 %%
 
@@ -299,9 +338,12 @@ char* TypeToString(Type *type){
 	char* res;
 	switch (type->category){
 		case PRIMITIVE:
-			res = (char*)malloc(sizeof(char)*256);
-			sprintf(res, "%s", type->name);
-			return res;
+			//res = (char*)malloc(sizeof(char)*256);
+			if (type->primitive == INT) return "INT";
+			if (type->primitive == CHAR) return "CHAR";
+			if (type->primitive == FLOAT) return "FLOAT";
+			//sprintf(res, "%s", type->name);
+			//return res;
 			break;
 		case ARRAY:
 			res = ArrayToString(type->array);
@@ -331,10 +373,18 @@ char *FieldListToString(FieldList* head){
 }
 
 FieldList* varExist(char *name){
-	FieldList* var = list_findByName(tmpList, name);
-	if (var == NULL)
-		return list_findByName(varList, name);
-	return var;
+	FieldList* var;
+	var = list_findByName(varList, name);
+	if (var != NULL) return var;
+	var = list_findByName(tmpList, name);
+	if (var != NULL) return var;
+	var = list_getLast(funcList);
+	if (var != NULL){
+		return list_findByName(var->args, name);
+	}
+	else 
+		return NULL;
+	return NULL;
 }
 
 int addVar(FieldList* head, struct treeNode* node, int lineno){
@@ -464,7 +514,7 @@ Type getExpType(struct treeNode* node, int lineno){
 			if (!strcmp(node->child[1]->value, "LP") && !strcmp(node->child[2]->value, "RP")){
 				FieldList *func = list_findByName(funcList, node->child[0]->value+4); // "ID: "
 				char *res = TypeToString(func->type);
-				printf("function return type: %s\n", res);
+				//printf("function return type: %s\n", res);
 				return *(func->type);
 			}
 			if (!strcmp(node->child[1]->value, "ASSIGN")){ // for ASSIGN operation, just ensure two Exp has same type
@@ -534,6 +584,7 @@ int main(){
 	varList = list_init();
 	funcList = list_init();
 	retList = list_init();
+	funcArgs = list_init();
 	structList = list_init();
     yyparse();
 	#define DEBUG

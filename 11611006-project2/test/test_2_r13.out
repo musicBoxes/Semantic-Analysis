@@ -4,29 +4,29 @@ Error type 5 at Line 17: unmatching type on both sides of assignment
 Variable List
 FieldList in Struct: 2
 FieldList in Struct: 2
-Name:name Type:int
-Name:age Type:int
+Name:name Type:INT
+Name:age Type:INT
 Name:c Type:struct
-Name:cc Type:int
+Name:cc Type:INT
 Name:father Type:struct
 FieldList in Struct: 2
 FieldList in Struct: 2
-Name:name Type:int
-Name:age Type:int
+Name:name Type:INT
+Name:age Type:INT
 Name:c Type:struct
-Name:cc Type:int
+Name:cc Type:INT
 Name:mother Type:struct
 Function List
-Name:test_2_r13 Type:int
+Name:test_2_r13 Type:INT
 Struct List
 FieldList in Struct: 2
-Name:name Type:int
-Name:age Type:int
+Name:name Type:INT
+Name:age Type:INT
 Name:Child Type:struct
 FieldList in Struct: 2
 FieldList in Struct: 2
-Name:name Type:int
-Name:age Type:int
+Name:name Type:INT
+Name:age Type:INT
 Name:c Type:struct
-Name:cc Type:int
+Name:cc Type:INT
 Name:Parent Type:struct

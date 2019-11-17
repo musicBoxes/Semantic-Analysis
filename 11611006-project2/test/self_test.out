@@ -1,8 +1,8 @@
 Variable List
-Name:a Type:int
-Name:b Type:int
-Name:c Type:int
-Name:d Type:int
+Name:a Type:INT
+Name:b Type:INT
+Name:c Type:INT
+Name:d Type:INT
 Function List
-Name:aha Type:int
+Name:aha Type:INT
 Struct List
