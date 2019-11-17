@@ -1,7 +1,1 @@
 Error type 8 at Line 21: Function’s return value type mismatches the declared type
-Variable List
-Function List
-Name:compare1 Type:INT
-Name:compare2 Type:FLOAT
-Name:test_2_r08 Type:INT
-Struct List

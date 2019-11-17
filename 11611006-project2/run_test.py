@@ -24,7 +24,7 @@ for i in range(1, 16):
 				val = 1
 				print("diff line ", i, text1[i], text2[i])
 		
-		if (val == 0):
+		if (val == 0 and len(text1) == len(text2)):
 			print("Pass")
 		else:
 			print("Fail")

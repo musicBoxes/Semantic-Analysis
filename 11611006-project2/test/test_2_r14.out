@@ -2,15 +2,3 @@ Error type 5 at Line 9: unmatching type on both sides of assignment
 Error type 5 at Line 10: unmatching type on both sides of assignment
 Error type 5 at Line 11: unmatching type on both sides of assignment
 Error type 5 at Line 12: unmatching type on both sides of assignment
-Variable List
-FieldList in Struct: 2
-Name:name Type:INT
-Name:height Type:INT
-Name:gg Type:struct
-Function List
-Name:test_2_r14 Type:INT
-Struct List
-FieldList in Struct: 2
-Name:name Type:INT
-Name:height Type:INT
-Name:Girl Type:struct

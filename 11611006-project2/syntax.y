@@ -258,7 +258,12 @@ Exp: Exp ASSIGN Exp {
 		FieldList* func;
 		if ((func = list_findByName(funcList, $1->value+4)) == NULL) { // "ID: "
 			error_flag = 1;
-			printf("Error type 2 at Line %d: Function '%s' is invoked without definition\n", @1.first_line, $1->value+4);
+			if (varExist($1->value+4)){
+				printf("Error type 11 at Line %d: Applying function invocation operator '()' on non-function names '%s'\n", @1.first_line, $1->value+4);
+			}
+			else{
+				printf("Error type 2 at Line %d: Function '%s' is invoked without definition\n", @1.first_line, $1->value+4);
+			}
 		}
 		else{
 			FieldList *cur1 = func->args->next, *cur2 = funcArgs->next;
@@ -282,7 +287,12 @@ Exp: Exp ASSIGN Exp {
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
 		if (list_findByName(funcList, $1->value+4) == NULL) { // "ID: "
 			error_flag = 1;
-			printf("Error type 2 at Line %d: Function '%s' is invoked without definition\n", @1.first_line, $1->value+4);
+			if (varExist($1->value+4)){
+				printf("Error type 11 at Line %d: Applying function invocation operator '()' on non-function names '%s'\n", @1.first_line, $1->value+4);
+			}
+			else{
+				printf("Error type 2 at Line %d: Function '%s' is invoked without definition\n", @1.first_line, $1->value+4);
+			}
 		}
 	}
     | Exp LB Exp RB { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
@@ -403,8 +413,22 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 		newItem->type = (Type*)malloc(sizeof(Type));
 		memcpy(newItem->type, &baseType, sizeof(Type));
 		strcpy(newItem->name, node->child[0]->value+4);
-		//printf("BaseType INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, baseType.category, baseType.primitive, baseType.name);
-		//printf("NewItem  INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, newItem->type->category, newItem->type->primitive, newItem->type->name);
+		newItem->next = NULL;
+		list_pushBack(head, newItem);
+	}
+	if (node->childNum == 4){ // array
+		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
+		
+		Array *array = (Array*)malloc(sizeof(Array));
+		array->base = (Type*)malloc(sizeof(Type));
+		memcpy(array->base, &baseType, sizeof(Type));
+		array->size = strToInt(node->child[2]->value+5); // "INT: "
+		
+		newItem->type = (Type*)malloc(sizeof(Type));
+		newItem->type->category = ARRAY;
+		newItem->type->array = array;
+		// just support 1 dimension array
+		strcpy(newItem->name, node->child[0]->child[0]->value+4);
 		newItem->next = NULL;
 		list_pushBack(head, newItem);
 	}
@@ -415,7 +439,10 @@ int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno
 	// "ID: "
 	if (list_findByName(head, node->value+4) != NULL){
 		error_flag = 1;
-		printf("Error type 4 at Line %d: Function '%s' is redefined\n", lineno, node->value+4);
+		if (!strcmp(head->name, "func"))
+			printf("Error type 4 at Line %d: Function '%s' is redefined\n", lineno, node->value+4);
+		if (!strcmp(head->name, "struct"))
+			printf("Error type 15 at Line %d: Redefine the same structure type\n", lineno, node->value+4);
 		return 1;
 	}
 	
@@ -523,7 +550,10 @@ Type getExpType(struct treeNode* node, int lineno){
 			else{
 				//printf("Operation: %s\n", node->child[1]->value);
 				if (!strcmp("DOT", node->child[1]->value)){
-					
+					Type type = getExpType(node->child[0], lineno);
+					if (type.category != STRUCTURE){
+						
+					}
 				}
 				else{
 					return isValidOperation(node->child[0], node->child[2], lineno);
@@ -583,11 +613,13 @@ int main(){
 	tmpList = list_init();
 	varList = list_init();
 	funcList = list_init();
+	memcpy(funcList->name, "func", 4);
 	retList = list_init();
 	funcArgs = list_init();
 	structList = list_init();
+	memcpy(structList->name, "struct", 6);
     yyparse();
-	#define DEBUG
+	//#define DEBUG
 	#ifdef DEBUG
 	printf("Variable List\n");
 	FieldListToString(varList);

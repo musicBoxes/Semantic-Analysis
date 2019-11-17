@@ -1,8 +1,1 @@
 Error type 1 at Line 5: Variable 'x3' is not defined
-Variable List
-Name:x1 Type:INT
-Name:x2 Type:INT
-Name:x4 Type:INT
-Function List
-Name:test_2_r01 Type:INT
-Struct List

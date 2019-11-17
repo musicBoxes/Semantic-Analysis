@@ -1,8 +1,1 @@
 Error type 2 at Line 8: Function 'add' is invoked without definition
-Variable List
-Name:k Type:INT
-Name:r Type:INT
-Function List
-Name:add1 Type:INT
-Name:test_2_r02 Type:INT
-Struct List

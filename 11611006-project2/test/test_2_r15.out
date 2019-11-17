@@ -1,11 +1,1 @@
-Error type 4 at Line 6: Function 'Child' is redefined
-Variable List
-FieldList in Struct: 1
-Name:name Type:INT
-Name:Amy Type:struct
-Function List
-Name:test_2_r15 Type:INT
-Struct List
-FieldList in Struct: 1
-Name:name Type:INT
-Name:Child Type:struct
+Error type 15 at Line 6: Redefine the same structure type

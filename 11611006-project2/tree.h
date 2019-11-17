@@ -69,8 +69,11 @@ void treePrintLevel(struct treeNode *node, int depth)
 int strToInt(char *str){
 	int res = 0;
 	while (*str != 0){
+		//printf("%c", *str);
 		res = res * 10 + *str - '0';
+		str++;
 	}
+	return res;
 }
 
 void treeParseLevel(struct treeNode *node, Type *type, FieldList* varList)

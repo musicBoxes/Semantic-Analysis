@@ -1,9 +1,1 @@
 Error type 9 at Line 12: Function’s arguments mismatch the declared parameters
-Variable List
-Name:a Type:FLOAT
-Name:b Type:FLOAT
-Name:c Type:FLOAT
-Function List
-Name:compare Type:INT
-Name:test_2_r09 Type:INT
-Struct List

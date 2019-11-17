@@ -1,9 +1,0 @@
-Error type 1 at Line 9: Variable 'arr1' is not defined
-Error type 1 at Line 15: Variable 'arr2' is not defined
-Error type 1 at Line 15: Variable 'arr1' is not defined
-Variable List
-Name:a Type:FLOAT
-Name:i Type:INT
-Function List
-Name:test_2_r12 Type:INT
-Struct List
