@@ -1,7 +1,1 @@
 Error type 3 at Line 6: Variable 'ttt' is redefined
-Variable List
-ttt int
-iii float
-kkk float
-Function List
-test_2_r03 int

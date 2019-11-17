@@ -28,7 +28,10 @@
 	
 	// return 0 if variable add successfully
 	// return 1 means error
+	
+	FieldList* varExist(char *name);
 	int addVar(FieldList*, struct treeNode*, int);
+	int addFunc(FieldList* head, struct treeNode* node, int lineno);
 	
 	Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
 	Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno);
@@ -52,7 +55,7 @@ ExtDefList: ExtDef ExtDefList { childNum = 2; childNodeList[0]=$1; childNodeList
     ;
 ExtDef: Specifier ExtDecList SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); 
-		list_link(varList, tmpList);
+		//list_link(varList, tmpList);
 	}
     | Specifier SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier FunDec CompSt { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
@@ -122,7 +125,11 @@ ParamDec: Specifier VarDec {
 		addVar(varList, $2, @$.first_line);
 	}
     ;
-CompSt: LC DefList StmtList RC { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "CompSt", @$.first_line); }
+CompSt: LC DefList StmtList RC { 
+		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "CompSt", @$.first_line); 
+		//printf("DefList %d %d\n", list_size(varList), list_size(tmpList));
+		list_link(varList, tmpList);
+	}
 	| LC DefList StmtList error { printf("Error type B at Line %d: Missing \"}\"\n", @$.first_line); error_flag = 1; }
 	| LC DefList StmtList Def StmtList DefStmtList RC { printf("Error type B at Line %d: Definition must at head.\n", @4.first_line); error_flag = 1; }
 	;
@@ -153,7 +160,7 @@ DefList: Def DefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $
     ;
 Def: Specifier DecList SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); 
-		list_link(varList, tmpList);
+		//list_link(varList, tmpList);
 	}
     | Specifier DecList error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; }
 	;
@@ -213,7 +220,7 @@ Exp: Exp ASSIGN Exp {
     | Exp DOT ID { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | ID { 
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
-		if (list_findByName(varList, $1->value+4) == NULL) { //"ID: "
+		if (varExist($1->value+4) == NULL) { //"ID: "
 			error_flag = 1;
 			printf("Error type 1 at Line %d: Variable '%s' is not defined\n", @$.first_line, $1->value+4);
 		}
@@ -272,11 +279,16 @@ char *FieldListToString(FieldList* head){
 	}
 }
 
+FieldList* varExist(char *name){
+	FieldList* var = list_findByName(tmpList, name);
+	if (var == NULL)
+		return list_findByName(varList, name);
+	return var;
+}
+
 int addVar(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
-	if (list_findByName(tmpList, node->child[0]->value+4) != NULL 
-		|| list_findByName(varList, node->child[0]->value+4) != NULL
-		)
+	if (varExist(node->child[0]->value+4) != NULL)
 	{
 		error_flag = 1;
 		printf("Error type 3 at Line %d: Variable '%s' is redefined\n", lineno, node->child[0]->value+4);
@@ -357,7 +369,7 @@ Type getExpType(struct treeNode* node, int lineno){
 				case 'I': // INT or ID
 					if (node->child[0]->value[1] == 'D'){ // ID
 						FieldList* var;
-						if ((var = list_findByName(varList, node->child[0]->value+4)) != NULL){ //"ID: "
+						if ((var = varExist(node->child[0]->value+4)) != NULL){ //"ID: "
 							return *(var->type);
 						}
 						else{ // not find this variable, just ignore it
@@ -404,8 +416,11 @@ int main(){
 	varList = list_init();
 	funcList = list_init();
     yyparse();
+	//#define DEBUG
+	#ifdef DEBUG
 	printf("Variable List\n");
 	FieldListToString(varList);
 	printf("Function List\n");
 	FieldListToString(funcList);
+	#endif
 }

@@ -72,6 +72,16 @@ FieldList* list_init(){
 	return head;
 }
 
+int list_size(FieldList* head){
+	FieldList* cur = head->next;
+	int cnt = 0;
+	while (cur != NULL) {
+		cur = cur->next;
+		cnt ++;
+	}
+	return cnt;
+}
+
 void list_pushBack(FieldList *head, FieldList *value){
 	FieldList* cur = head;
 	while (cur->next != NULL) cur = cur->next;

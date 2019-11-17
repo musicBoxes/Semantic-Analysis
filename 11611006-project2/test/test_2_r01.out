@@ -1,7 +1,1 @@
 Error type 1 at Line 5: Variable 'x3' is not defined
-Variable List
-x1 int
-x2 int
-x4 int
-Function List
-test_2_r01 int
