@@ -24,9 +24,8 @@ INT_ INT_DEC|INT_HEX
 %option yylineno
 ILLEGAL_SET [^ \n\r\t\(\);,!&\.\*\[\]\|\<>=\+-]
 ID [a-zA-Z_]([a-zA-Z_]|[0-9])*
-INT -?([0-9]{1,10})|(0[xX][0-9a-fA-F]{1,8})
-ERROR_INT -?([0-9]{11,})|(0[xX][0-9a-zA-Z]{1,})
-FLOAT -?[0-9]*[.][0-9]+([eE][+-]?[0-9]*|[0])?f?
+INT ([0-9]{1,10})|(0[xX][0-9a-fA-F]{1,8})
+FLOAT [0-9]*[.][0-9]+([eE][+-]?[0-9]*|[0])?f?
 CHAR ('.')|('\\[xX][0-9a-fA-F]{1,2}') 
 TYPE (int)|(float)|(char)
 C1 [/]

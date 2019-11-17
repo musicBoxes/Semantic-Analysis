@@ -2642,12 +2642,24 @@ Type getExpType(struct treeNode* node, int lineno){
 			}
 			//Exp LB Exp RB
 			if (!strcmp(node->child[1]->value, "LB") && !strcmp(node->child[3]->value, "RB")){
-				FieldList *func = list_findByName(funcList, node->child[0]->value+4); // "ID: "
-				if (func != NULL) return *(func->type);
-				else{
+				type = getExpType(node->child[2], lineno);
+				//printf("Type category: %d primitive %d INT %d BOOL %d childNum %d\n", 
+				//	type.category, type.primitive, INT, (type.category == PRIMITIVE && type.primitive == INT), node->child[2]->childNum);
+				if (!(type.category == PRIMITIVE && type.primitive == INT)){
+					error_flag = 1;
+					printf("Error type 12 at Line %d: Array indexing with non-integer type expression\n", lineno);
 					type.category = IGNORE;
 					return type;
 				}
+				type = getExpType(node->child[0], lineno);
+				if (type.category != ARRAY){
+					error_flag = 1;
+					printf("Error type 10 at Line %d: Applying indexing operator '[]' on non-array type variabless\n", lineno);
+					type.category = IGNORE;
+					return type;
+				}
+				type = *(type.array->base);
+				return type;
 			}
 			break;
 	}
