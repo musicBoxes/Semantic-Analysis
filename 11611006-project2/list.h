@@ -36,6 +36,7 @@ char* ArrayToString(Array *array);
 char *FieldListToString(FieldList* head);
 
 int isSameType(const Type *a, const Type *b){
+	if (a == NULL || b == NULL) return 0;
 	if (a->category == IGNORE || b->category == IGNORE) return 1;
 	if (a->category != b->category) return 0;
 	switch (a->category){
@@ -84,6 +85,7 @@ FieldList* list_getLast(FieldList *head){
 }
 
 void list_link(FieldList *firstHead, FieldList *secondHead){
+	//printf("%d %d\n", list_getLast(firstHead)->next == NULL, list_getLast(firstHead));
 	list_getLast(firstHead)->next = secondHead->next;
 	secondHead->next = NULL;
 }

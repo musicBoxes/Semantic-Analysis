@@ -1,7 +1,10 @@
+Error type 7 at Line 10: Invalid operation on non-number variables
+Error type 7 at Line 10: Invalid operation on non-number variables
+Error type 5 at Line 10: unmatching type on both sides of assignment
 Variable List
 weight int
 round float
-aa int
+aa float
 weight_test float
 Function List
 test_2_r07 int

@@ -1,9 +1,10 @@
+Error type 5 at Line 15: unmatching type on both sides of assignment
 Variable List
 age int
 height float
 code int
 weight float
-s int
-p int
+s float
+p float
 Function List
 test_2_o02 int

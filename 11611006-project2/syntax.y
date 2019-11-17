@@ -10,6 +10,7 @@
 	
 	int childNum;
 	int error_flag = 0;
+	int struct_flag = 0;
 	int arraySize_flag = 0;
 	char errmsg[100];
 	
@@ -17,8 +18,10 @@
 	struct treeNode* childNodeList[10];
 	// global table
 	struct FieldList* globalVariableTable;
+	struct FieldList* tmpList;
 	struct FieldList* varList;
 	struct FieldList* funcList;
+	struct FieldList* structList;
 	
 	Type baseType;
 	void yyerror(char*);
@@ -49,6 +52,7 @@ ExtDefList: ExtDef ExtDefList { childNum = 2; childNodeList[0]=$1; childNodeList
     ;
 ExtDef: Specifier ExtDecList SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); 
+		list_link(varList, tmpList);
 	}
     | Specifier SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier FunDec CompSt { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
@@ -81,10 +85,21 @@ Specifier: TYPE {
 		}
 		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
 	}
-    | StructSpecifier { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); }
+    | StructSpecifier { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Specifier", @$.first_line); 
+		baseType.category = STRUCTURE;
+		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
+	}
     ;
-StructSpecifier: STRUCT ID LC DefList RC { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); }
-    | STRUCT ID { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); }
+StructSpecifier: STRUCT ID LC DefList RC { 
+		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
+		struct_flag = 1;
+		//list_pushBack(structList, );
+	}
+    | STRUCT ID { 
+		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
+		
+	}
     ;
 VarDec: ID { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
     | VarDec LB INT RB { childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "VarDec", @$.first_line); }
@@ -136,7 +151,10 @@ Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=crea
 DefList: Def DefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); }
     |  { $$=createEmpty(); }
     ;
-Def: Specifier DecList SEMI { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); }
+Def: Specifier DecList SEMI { 
+		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); 
+		list_link(varList, tmpList);
+	}
     | Specifier DecList error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; }
 	;
 DecList: Dec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "DecList", @$.first_line); }
@@ -144,17 +162,16 @@ DecList: Dec { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childN
     ;
 Dec: VarDec { 
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); 
-		addVar(varList, $1, @$.first_line);
+		addVar(tmpList, $1, @$.first_line);
 	}
     | VarDec ASSIGN Exp { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Dec", @$.first_line); 
-		addVar(varList, $1, @$.first_line);
-		Type tmp = getExpType($3, @2.first_line);
-		//Type *last = list_getLast(varList)->type;
-		//printf("tmp %d %d last %d %d\n", tmp.category, tmp.primitive, last->category, last->primitive);
-		if (!isSameType(&tmp, list_getLast(varList)->type)){
-			error_flag = 1;
-			printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", @2.first_line);
+		if (addVar(tmpList, $1, @$.first_line) == 0){
+			Type tmp = getExpType($3, @2.first_line);
+			if (!isSameType(&tmp, list_getLast(tmpList)->type)){
+				error_flag = 1;
+				printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", @2.first_line);
+			}
 		}
 	}
 //	| VarDec ASSIGN error { printf("Error type B at Line %d: VarDec ASSIGN error\n", @$.first_line); error_flag = 1; }
@@ -257,10 +274,16 @@ char *FieldListToString(FieldList* head){
 
 int addVar(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
-	if (list_findByName(head, node->child[0]->value+4) != NULL){
+	if (list_findByName(tmpList, node->child[0]->value+4) != NULL 
+		|| list_findByName(varList, node->child[0]->value+4) != NULL
+		)
+	{
 		error_flag = 1;
 		printf("Error type 3 at Line %d: Variable '%s' is redefined\n", lineno, node->child[0]->value+4);
 		return 1;
+	}
+	if (struct_flag){
+		
 	}
 	if (node->childNum == 1){ // just variable, not array
 		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
@@ -269,6 +292,7 @@ int addVar(FieldList* head, struct treeNode* node, int lineno){
 		strcpy(newItem->name, node->child[0]->value+4);
 		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
 		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, newItem->type->primitive, newItem->type->name);
+		newItem->next = NULL;
 		list_pushBack(head, newItem);
 	}
 	return 0;
@@ -286,6 +310,7 @@ int addFunc(FieldList* head, struct treeNode* node, int lineno){
 	newItem->type = (Type*)malloc(sizeof(Type));
 	memcpy(newItem->type, &baseType, sizeof(Type));
 	strcpy(newItem->name, node->value+4);
+	newItem->next = NULL;
 	list_pushBack(head, newItem);
 	
 	return 0;
@@ -375,6 +400,7 @@ Type getExpType(struct treeNode* node, int lineno){
 }
 
 int main(){
+	tmpList = list_init();
 	varList = list_init();
 	funcList = list_init();
     yyparse();
