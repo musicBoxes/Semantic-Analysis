@@ -2618,11 +2618,27 @@ Type getExpType(struct treeNode* node, int lineno){
 				return isValidAssign(node->child[0], node->child[2], lineno);
 			}
 			else{
+				// Exp DOT ID
 				//printf("Operation: %s\n", node->child[1]->value);
 				if (!strcmp("DOT", node->child[1]->value)){
-					Type type = getExpType(node->child[0], lineno);
+					type = getExpType(node->child[0], lineno);
 					if (type.category != STRUCTURE){
-						
+						error_flag = 1;
+						printf("Error type 13 at Line %d: Accessing member of non-structure variable\n", lineno);
+						type.category = IGNORE;
+						return type;
+					}
+					else{
+						FieldList* var = list_findByName(type.structure, node->child[2]->value+4);
+						if (var == NULL){
+							error_flag = 1;
+							printf("Error type 13 at Line %d: Accessing an undefined structure member %s\n", lineno, node->child[2]->value+4);
+							type.category = IGNORE;
+							return type;
+						}
+						else {
+							return *(var->type);
+						}
 					}
 				}
 				else{

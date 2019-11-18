@@ -1,3 +1,2 @@
-Error type 5 at Line 15: unmatching type on both sides of assignment
-Error type 5 at Line 16: unmatching type on both sides of assignment
-Error type 5 at Line 17: unmatching type on both sides of assignment
+Error type 13 at Line 19: Accessing member of non-structure variable
+Error type 13 at Line 19: Accessing member of non-structure variable
