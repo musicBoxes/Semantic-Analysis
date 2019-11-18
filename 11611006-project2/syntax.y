@@ -14,17 +14,27 @@
 	int arraySize_flag = 0;
 	char errmsg[100];
 	
-	// temporary store
+	// temporary store child node
 	struct treeNode* childNodeList[10];
-	// global table
-	struct FieldList* globalVariableTable;
+	
+	// temporarily store a list of variable
 	struct FieldList* tmpList;
-	struct FieldList* varList;
+	
+	// global
+	struct FieldList* globalVariableList;
+	struct FieldList* globalStructList;
+	
+	// funcList is already global
 	struct FieldList* funcList;
-	struct FieldList* retList;
-	struct FieldList* funcArgs;
+	
+	// store all variable in {  }
+	// each member is a List 
+	// use '->vars' to get all variables
+	struct FieldList* allTmpVarList;
 	struct FieldList* structList;
 	
+	struct FieldList* retList;
+	struct FieldList* funcArgs;
 	
 	struct FieldList* curFunc;
 	Type baseType;
@@ -32,15 +42,18 @@
 	
 	void yyerror(char*);
 	
-	// return 0 if variable add successfully
-	// return 1 means error
+	FieldList* validDecDefVar(char *name);
+	FieldList* validUseVar(char *name);
 	
 	FieldList* varExist(char *name);
+	
+	// return 0 if variable add successfully
+	// return 1 means error
 	int addVar(FieldList*, struct treeNode*, int);
 	int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno);
 	
 	Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
-	Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno);
+	Type isValidOperation(struct treeNode *a, struct treeNode *b, char *operation, int lineno);
 	Type getExpType(struct treeNode* node, int lineno);
 	Type parseSpecifier(struct treeNode* node);
 %}
@@ -62,7 +75,8 @@ ExtDefList: ExtDef ExtDefList { childNum = 2; childNodeList[0]=$1; childNodeList
     ;
 ExtDef: Specifier ExtDecList SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); 
-		//list_link(varList, tmpList);
+		list_link(globalVariableList, tmpList);
+		//list_link(globalStructList, structList);
 	}
     | Specifier SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "ExtDef", @$.first_line); }
     | Specifier FunDec CompSt { 
@@ -117,7 +131,8 @@ StructSpecifier: STRUCT ID LC DefList RC {
 		struct_flag = 1;
 		baseType.category = STRUCTURE;
 		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
-		list_link(baseType.structure, tmpList);
+		list_link(baseType.structure, list_getLast(allTmpVarList)->vars);
+		list_deleteLast(allTmpVarList);
 		addFuncStruct(structList, $2, &baseType, @2.first_line);
 	}
     | STRUCT ID { 
@@ -126,6 +141,10 @@ StructSpecifier: STRUCT ID LC DefList RC {
 		//"ID: "
 		if ((structType = list_findByName(structList, $2->value+4)) != NULL){
 			baseType = *(structType->type);
+		}
+		else{
+			error_flag = 1;
+			printf("Struct '%s' is used without define.\n", $2->value+4);
 		}
 	}
     ;
@@ -137,7 +156,6 @@ FunDec: ID LP VarList RP {
 		addFuncStruct(funcList, $1, &funcRetType, @1.first_line);
 		curFunc = list_getLast(funcList);
 		curFunc->args = (FieldList*)malloc(sizeof(FieldList));
-		//list_commonLink(varList, tmpList);
 		list_link(curFunc->args, tmpList);
 	}
     | ID LP RP { 
@@ -158,9 +176,7 @@ ParamDec: Specifier VarDec {
     ;
 CompSt: LC DefList StmtList RC { 
 		childNum = 4; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; $$=createNode(childNum, childNodeList, "CompSt", @$.first_line); 
-		//printf("DefList %d %d\n", list_size(varList), list_size(tmpList));
-		//printf("tmpList %s\n", tmpList->next->name);
-		list_link(varList, tmpList);
+		list_deleteLast(allTmpVarList);
 	}
 	| LC DefList StmtList error { printf("Error type B at Line %d: Missing \"}\"\n", @$.first_line); error_flag = 1; }
 	| LC DefList StmtList Def StmtList DefStmtList RC { printf("Error type B at Line %d: Definition must at head.\n", @4.first_line); error_flag = 1; }
@@ -173,7 +189,9 @@ StmtList: Stmt StmtList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2
 //	| Def DefList { printf("Error type B at Line %d: Definition must at head.\n", @$.first_line); error_flag = 1; }
     ;
 Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
-    | CompSt { childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
+    | CompSt { 
+		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+	}
     | RETURN Exp SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
 		Type type = getExpType($2, @2.first_line);
@@ -193,12 +211,20 @@ Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=crea
 	| FOR LP Def ExpListEx SEMI ExpListEx RP Stmt { childNum = 8; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
 	| FOR LP ExpListEx SEMI ExpListEx SEMI ExpListEx RP Stmt { childNum = 9; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; childNodeList[8]=$9; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
 	;
-DefList: Def DefList { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); }
-    |  { $$=createEmpty(); }
+DefList: Def DefList { 
+		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); 
+	}
+    |  { 
+		$$=createEmpty(); 
+		FieldList* varDefList = (FieldList*)malloc(sizeof(FieldList));
+		varDefList->next = NULL;
+		varDefList->vars = (FieldList*)malloc(sizeof(FieldList));
+		list_link(varDefList->vars, tmpList);
+		list_pushBack(allTmpVarList, varDefList);
+	}
     ;
 Def: Specifier DecList SEMI { 
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Def", @$.first_line); 
-		//list_link(varList, tmpList);
 	}
     | Specifier DecList error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; }
 	;
@@ -258,7 +284,7 @@ Exp: Exp ASSIGN Exp {
 		FieldList* func;
 		if ((func = list_findByName(funcList, $1->value+4)) == NULL) { // "ID: "
 			error_flag = 1;
-			if (varExist($1->value+4)){
+			if (validUseVar($1->value+4)){
 				printf("Error type 11 at Line %d: Applying function invocation operator '()' on non-function names '%s'\n", @1.first_line, $1->value+4);
 			}
 			else{
@@ -287,7 +313,7 @@ Exp: Exp ASSIGN Exp {
 		childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
 		if (list_findByName(funcList, $1->value+4) == NULL) { // "ID: "
 			error_flag = 1;
-			if (varExist($1->value+4)){
+			if (validUseVar($1->value+4)){
 				printf("Error type 11 at Line %d: Applying function invocation operator '()' on non-function names '%s'\n", @1.first_line, $1->value+4);
 			}
 			else{
@@ -299,7 +325,7 @@ Exp: Exp ASSIGN Exp {
     | Exp DOT ID { childNum = 3; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); }
     | ID { 
 		childNum = 1; childNodeList[0]=$1; $$=createNode(childNum, childNodeList, "Exp", @$.first_line); 
-		if (varExist($1->value+4) == NULL) { //"ID: "
+		if (validUseVar($1->value+4) == NULL) { //"ID: "
 			error_flag = 1;
 			printf("Error type 1 at Line %d: Variable '%s' is not defined\n", @$.first_line, $1->value+4);
 		}
@@ -382,9 +408,48 @@ char *FieldListToString(FieldList* head){
 	}
 }
 
+FieldList* validDecDefVar(char *name){
+	// Just check current field
+	FieldList* var;
+	var = list_findByName(list_getLast(allTmpVarList)->vars, name);
+	if (var != NULL) return var;
+	var = list_findByName(tmpList, name);
+	if (var != NULL) return var;
+	/*
+	var = list_getLast(funcList);
+	if (var != NULL){
+		return list_findByName(var->args, name);
+	}
+	else 
+		return NULL;
+	*/
+	return NULL;
+}
+
+FieldList* validUseVar(char *name){
+	// check all fields
+	FieldList* var;
+	
+	FieldList* cur = allTmpVarList->next;
+	while (cur != NULL){
+		var = list_findByName(cur->vars, name);
+		if (var != NULL) return var;
+		cur = cur->next;
+	}
+	var = list_findByName(tmpList, name);
+	if (var != NULL) return var;
+	var = list_getLast(funcList);
+	if (var != NULL){
+		return list_findByName(var->args, name);
+	}
+	else 
+		return NULL;
+	return NULL;
+}
+
 FieldList* varExist(char *name){
 	FieldList* var;
-	var = list_findByName(varList, name);
+	var = list_findByName(list_getLast(allTmpVarList)->vars, name);
 	if (var != NULL) return var;
 	var = list_findByName(tmpList, name);
 	if (var != NULL) return var;
@@ -399,14 +464,11 @@ FieldList* varExist(char *name){
 
 int addVar(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
-	if (varExist(node->child[0]->value+4) != NULL)
+	if (validDecDefVar(node->child[0]->value+4) != NULL)
 	{
 		error_flag = 1;
 		printf("Error type 3 at Line %d: Variable '%s' is redefined\n", lineno, node->child[0]->value+4);
 		return 1;
-	}
-	if (struct_flag){
-		
 	}
 	if (node->childNum == 1){ // just variable, not array
 		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
@@ -473,7 +535,7 @@ Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno){
 	}
 }
 
-Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno){
+Type isValidOperation(struct treeNode *a, struct treeNode *b, char* operation, int lineno){
 	Type type_a, type_b;
 	type_a = getExpType(a, lineno);
 	type_b = getExpType(b, lineno);
@@ -486,7 +548,7 @@ Type isValidOperation(struct treeNode *a, struct treeNode *b, int lineno){
 	}
 	else {
 		error_flag = 1;
-		printf("Error type 7 at Line %d: Invalid operation on non-number variables\n", lineno);
+		printf("Error type 7 at Line %d: Invalid operation '%s' on non-number variables\n", lineno, operation);
 		type.category = DIFFERENT;
 		return type;
 	}
@@ -501,7 +563,7 @@ Type getExpType(struct treeNode* node, int lineno){
 				case 'I': // INT or ID
 					if (node->child[0]->value[1] == 'D'){ // ID
 						FieldList* var;
-						if ((var = varExist(node->child[0]->value+4)) != NULL){ //"ID: "
+						if ((var = validUseVar(node->child[0]->value+4)) != NULL){ //"ID: "
 							return *(var->type);
 						}
 						else{ // not find this variable, just ignore it
@@ -559,10 +621,12 @@ Type getExpType(struct treeNode* node, int lineno){
 						return type;
 					}
 					else{
+						//printf("StructList: %d %d %d\n", type.category, type.structure, list_size(type.structure));
+						//FieldListToString(type.structure);
 						FieldList* var = list_findByName(type.structure, node->child[2]->value+4);
 						if (var == NULL){
 							error_flag = 1;
-							printf("Error type 13 at Line %d: Accessing an undefined structure member %s\n", lineno, node->child[2]->value+4);
+							printf("Error type 14 at Line %d: Accessing an undefined structure member '%s'\n", lineno, node->child[2]->value+4);
 							type.category = IGNORE;
 							return type;
 						}
@@ -572,7 +636,7 @@ Type getExpType(struct treeNode* node, int lineno){
 					}
 				}
 				else{
-					return isValidOperation(node->child[0], node->child[2], lineno);
+					return isValidOperation(node->child[0], node->child[2], node->child[1]->value, lineno);
 				}
 			}
 			break;
@@ -633,24 +697,36 @@ Type parseSpecifier(struct treeNode* node){
 	return type;
 }
 
-int checkRet(){
+void parseCompSt(struct treeNode* node){
+	// CompSt -> LC DefList StmtList RC
+	// DefList -> Def DefList
+	// Def -> Specifier DecList SEMI
+	struct treeNode* DefList = node->child[1];
 	
 }
 
 int main(){
+	globalVariableList = list_init();
+	globalStructList = list_init();
+	
 	tmpList = list_init();
-	varList = list_init();
-	funcList = list_init();
-	memcpy(funcList->name, "func", 4);
+	allTmpVarList = list_init();
+	
+	funcList = list_init(); memcpy(funcList->name, "func", 4);
+	
 	retList = list_init();
 	funcArgs = list_init();
-	structList = list_init();
-	memcpy(structList->name, "struct", 6);
+	
+	structList = list_init(); memcpy(structList->name, "struct", 6);
+	
+	stDefVarList = list_init();
+	stUseVarList = list_init();
+	
     yyparse();
 	//#define DEBUG
 	#ifdef DEBUG
 	printf("Variable List\n");
-	FieldListToString(varList);
+	//FieldListToString();
 	printf("Function List\n");
 	FieldListToString(funcList);
 	printf("Struct List\n");

@@ -30,6 +30,7 @@ typedef struct FieldList {
 	union{
 		int lineno;
 		struct FieldList* args;
+		struct FieldList* vars;
 	};
 	struct Type *type;
 	struct FieldList *next;
@@ -77,6 +78,7 @@ FieldList* list_init(){
 }
 
 int list_size(FieldList* head){
+	if (head == NULL) return 0;
 	FieldList* cur = head->next;
 	int cnt = 0;
 	while (cur != NULL) {
@@ -87,15 +89,27 @@ int list_size(FieldList* head){
 }
 
 void list_pushBack(FieldList *head, FieldList *value){
+	if (head == NULL) return;
 	FieldList* cur = head;
 	while (cur->next != NULL) cur = cur->next;
 	cur->next = value;
 }
 
 FieldList* list_getLast(FieldList *head){
+	if (head == NULL) return NULL;
 	FieldList* cur = head;
 	while (cur->next != NULL) cur = cur->next;
 	return cur;
+}
+
+void list_deleteLast(FieldList *head){
+	FieldList* cur = head;
+	FieldList* curLast;
+	while (cur->next != NULL) {
+		curLast = cur;
+		cur = cur->next;
+	}
+	curLast->next = NULL;
 }
 
 void list_link(FieldList *firstHead, FieldList *secondHead){
