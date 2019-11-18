@@ -504,7 +504,7 @@ int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno
 		if (!strcmp(head->name, "func"))
 			printf("Error type 4 at Line %d: Function '%s' is redefined\n", lineno, node->value+4);
 		if (!strcmp(head->name, "struct"))
-			printf("Error type 15 at Line %d: Redefine the same structure type\n", lineno, node->value+4);
+			printf("Error type 15 at Line %d: Redefine the same structure type(same name).\n", lineno, node->value+4);
 		return 1;
 	}
 	
@@ -515,9 +515,6 @@ int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno
 	newItem->next = NULL;
 	list_pushBack(head, newItem);
 	
-	//printf("BaseType INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, baseType.category, baseType.primitive, baseType.name);
-	//printf("NewItem  INT %d FLOAT %d CHAR %d: %d %d %s\n", INT, FLOAT, CHAR, newItem->type->category, newItem->type->primitive, newItem->type->name);
-
 	return 0;
 }
 
@@ -718,9 +715,6 @@ int main(){
 	funcArgs = list_init();
 	
 	structList = list_init(); memcpy(structList->name, "struct", 6);
-	
-	stDefVarList = list_init();
-	stUseVarList = list_init();
 	
     yyparse();
 	//#define DEBUG

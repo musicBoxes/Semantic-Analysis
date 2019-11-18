@@ -55,11 +55,11 @@ int isSameType(const Type *a, const Type *b){
 		break;
 		
 		case STRUCTURE:{
-			aFiledList = a->structure;
-			bFiledList = b->structure;
+			aFiledList = a->structure->next;
+			bFiledList = b->structure->next;
 			while (1){
 				if (aFiledList == NULL || bFiledList == NULL) break;
-				if (!strcmp(aFiledList->name, bFiledList->name) || !isSameType(aFiledList->type, bFiledList->type))
+				if (!isSameType(aFiledList->type, bFiledList->type))
 					return 0;
 				aFiledList = aFiledList->next;
 				bFiledList = bFiledList->next;
