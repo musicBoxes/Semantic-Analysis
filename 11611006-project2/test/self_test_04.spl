@@ -1,3 +1,4 @@
+// different struct member with same name
 struct a{
 	int a;
 	int b;

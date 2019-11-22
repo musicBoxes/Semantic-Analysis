@@ -142,7 +142,7 @@ StructSpecifier: STRUCT ID LC DefList RC {
 		}
 		else{
 			error_flag = 1;
-			printf("Semantic Error at line %d: Struct '%s' is used without define.\n", @2.first_line, $2->value+4);
+			printf("Semantic Error at line %d: Struct '%s' is used without definition.\n", @2.first_line, $2->value+4);
 		}
 	}
     ;

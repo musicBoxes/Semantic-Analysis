@@ -6,9 +6,11 @@ int valid_condition_test(){
 	if (a) return 0;
 	while (a) break;
 	
+	// condition is not int
 	if (b) return 0;
 	while (b) break;
 	
+	// condition is not int
 	if (c) return 0;
 	while (c) break;
 	return 0;

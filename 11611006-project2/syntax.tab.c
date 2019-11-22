@@ -1680,7 +1680,7 @@ yyreduce:
 		}
 		else{
 			error_flag = 1;
-			printf("Struct '%s' is used without define.\n", (yyvsp[0])->value+4);
+			printf("Semantic Error at line %d: Struct '%s' is used without definition.\n", (yylsp[0]).first_line, (yyvsp[0])->value+4);
 		}
 	}
 #line 1687 "syntax.tab.c" /* yacc.c:1646  */
