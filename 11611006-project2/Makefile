@@ -14,8 +14,4 @@ clean:
 	@rm -rf syntax.tab.*
 	@rm -rf lex.yy.c
 	@rm -rf syntax.output
-lex_test:
-	flex lex.l
-	gcc lex.yy.c -lfl -o lex_test.out
-	./lex_test.out .
 .PHONY: splc
