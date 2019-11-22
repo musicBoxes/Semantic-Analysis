@@ -28,7 +28,7 @@ def cmpFile(path1, path2):
 
 for i in range(1, 16):
 	print(i)
-	cmd = "./bin/splc < ./test/test_2_r%02d.spl > ./test/test_2_r%02d.out"%(i, i)
+	cmd = "./bin/splc ./test/test_2_r%02d.spl"%(i)
 	# print(cmd)
 	os.system(cmd)
 	# val = os.system("diff ./test/test_2_r%02d_output.out ./test/test_2_r%02d.out "%(i, i))
@@ -37,7 +37,7 @@ for i in range(1, 16):
 	
 for i in range(1, 3):
 	print(i)
-	cmd = "./bin/splc < ./test/test_2_o%02d.spl > ./test/test_2_o%02d.out"%(i, i)
+	cmd = "./bin/splc ./test/test_2_o%02d.spl"%(i)
 	# f = open("./test/test_2_o%02d_output.out"%(i), "w")
 	# f.write("")
 	# print(cmd)
@@ -46,6 +46,6 @@ for i in range(1, 3):
 	
 for i in range(1, 6):
     print(i)
-    cmd = "./bin/splc < ./test/self_test_%02d.spl > ./test/self_test_%02d.out"%(i, i)
+    cmd = "./bin/splc ./test/self_test_%02d.spl"%(i)
     os.system(cmd)
 # os.system("./bin/splc < ./test/self_test.spl > ./test/self_test.out")

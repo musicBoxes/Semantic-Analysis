@@ -727,7 +727,20 @@ Type parseSpecifier(struct treeNode* node){
 	return type;
 }
 
-int main(){
+int main(int argc, char** args){
+	//for (int i = 0 ; i < argc ; i ++)
+	//	printf("%d %s\n", i, args[i]);
+	
+	// input
+	freopen(args[1], "r", stdin);
+	
+	// output
+	char outputPath[256];
+	strcpy(outputPath, args[1]);
+	strcpy(outputPath+strlen(outputPath)-3, "out");
+	//printf("OutputPath = %s\n", outputPath);
+	freopen(outputPath, "w", stdout);
+		
 	globalVariableList = list_init();
 	globalStructList = list_init();
 	
@@ -741,6 +754,7 @@ int main(){
 	
 	structList = list_init(); memcpy(structList->name, "struct", 6);
 	
+	
     yyparse();
 	//#define DEBUG
 	#ifdef DEBUG
@@ -751,4 +765,7 @@ int main(){
 	printf("Struct List\n");
 	FieldListToString(structList);
 	#endif
+	
+	fclose(stdin);
+	fclose(stdout);
 }
