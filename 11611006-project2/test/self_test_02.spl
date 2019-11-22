@@ -1,0 +1,15 @@
+int valid_condition_test(){
+	int a = 0;
+	char b = '9', bb = 8.0;
+	float c = 8.0;
+	
+	if (a) return 0;
+	while (a) break;
+	
+	if (b) return 0;
+	while (b) break;
+	
+	if (c) return 0;
+	while (c) break;
+	return 0;
+}

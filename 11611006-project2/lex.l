@@ -17,6 +17,7 @@
 	yycolno += yyleng;
 	
 	extern int error_flag;
+	extern int loop_flag;
 %}
 INT_DEC -?([1-9][0-9]{0,9}))
 INT_HEX -?(0[xX][1-9a-fA-F][0-9a-fA-F]{0,7})
@@ -42,9 +43,11 @@ ERROR_MULTILINE_COMMENT {MULTILINE_COMMENT}({C4}{C2}*|({C1}*{C3})|{C3})*"*/"
 struct { yylval = createLeaf("STRUCT"); return STRUCT; }
 if { yylval = createLeaf("IF"); return IF; }
 else { yylval = createLeaf("ELSE"); return ELSE; }
-while { yylval = createLeaf("WHILE"); return WHILE; }
-for { yylval = createLeaf("FOR"); return FOR; }
+while { yylval = createLeaf("WHILE"); loop_flag++; return WHILE; }
+for { yylval = createLeaf("FOR"); loop_flag++; return FOR; }
+break { yylval = createLeaf("BREAK"); return BREAK; }
 return { yylval = createLeaf("RETURN"); return RETURN; }
+void { yylval = createLeaf("VOID"); return VOID; }
 {INT} { sprintf(tmp, "INT: %s", yytext); yylval = createLeaf(tmp); return INT; }
 {FLOAT} { sprintf(tmp, "FLOAT: %s", yytext); yylval = createLeaf(tmp); return FLOAT; }
 {ID} { sprintf(tmp, "ID: %s", yytext); yylval = createLeaf(tmp); return ID; }

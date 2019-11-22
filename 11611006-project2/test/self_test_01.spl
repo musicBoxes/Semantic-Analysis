@@ -1,0 +1,21 @@
+int while_for_test(){
+	int i = 9;
+	while (i){
+		i = i + 1;
+		while (i) break;
+		break;
+	}
+	{
+		int i = 0; // different scope
+	}
+	for ( ; ; ) break;
+	for (int j = 0 ; ; ){
+		int j = 0; // already def in for()
+		{
+			int j = 0; // different scope
+		}
+	}
+	j = 0; // out of scope
+	break; // break not in loop
+	return 0;
+}

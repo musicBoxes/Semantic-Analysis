@@ -1,0 +1,10 @@
+int invalid_operation_test(){
+	int a = 1.0;
+	int b = 0;
+	float c = 1.0;
+	char d = 'c';
+	
+	b = c;
+	c = b;
+	d = d + 1;
+}

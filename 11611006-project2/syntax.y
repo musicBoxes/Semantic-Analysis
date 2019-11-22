@@ -10,8 +10,7 @@
 	
 	int childNum;
 	int error_flag = 0;
-	int struct_flag = 0;
-	int arraySize_flag = 0;
+	int loop_flag = 0;
 	char errmsg[100];
 	
 	// temporary store child node
@@ -57,8 +56,8 @@
 	Type getExpType(struct treeNode* node, int lineno);
 	Type parseSpecifier(struct treeNode* node);
 %}
-%token TYPE ID CHAR FLOAT INT
-%token STRUCT IF ELSE WHILE FOR RETURN 
+%token TYPE ID CHAR FLOAT INT VOID
+%token STRUCT IF ELSE WHILE FOR RETURN BREAK
 %token DOT SEMI COMMA ASSIGN LT LE GT GE NE EQ 
 %token PLUS MINUS MUL DIV AND OR NOT LP RP LB RB LC RC 
 %token CS CE
@@ -128,7 +127,6 @@ Specifier: TYPE {
     ;
 StructSpecifier: STRUCT ID LC DefList RC { 
 		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "StructSpecifier", @$.first_line); 
-		struct_flag = 1;
 		baseType.category = STRUCTURE;
 		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
 		list_link(baseType.structure, list_getLast(allTmpVarList)->vars);
@@ -144,7 +142,7 @@ StructSpecifier: STRUCT ID LC DefList RC {
 		}
 		else{
 			error_flag = 1;
-			printf("Struct '%s' is used without define.\n", $2->value+4);
+			printf("Semantic Error at line %d: Struct '%s' is used without define.\n", @2.first_line, $2->value+4);
 		}
 	}
     ;
@@ -202,14 +200,49 @@ Stmt: Exp SEMI { childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=crea
 		memcpy(ret->type, &type, sizeof(Type));
 		list_pushBack(retList, ret);
 	}
-    | IF LP Exp RP Stmt { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
-    | IF LP Exp RP Stmt ELSE Stmt { childNum = 7; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
-    | WHILE LP Exp RP Stmt { childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
+    | IF LP Exp RP Stmt { 
+		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		Type type = getExpType($3, @3.first_line);
+		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+			error_flag = 1;
+			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", @3.first_line);
+		}
+	}
+    | IF LP Exp RP Stmt ELSE Stmt { 
+		childNum = 7; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		Type type = getExpType($3, @3.first_line);
+		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+			error_flag = 1;
+			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", @3.first_line);
+		}
+	}
+    | WHILE LP Exp RP Stmt { 
+		childNum = 5; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		loop_flag--;
+		Type type = getExpType($3, @3.first_line);
+		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+			error_flag = 1;
+			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", @3.first_line);
+		}
+	}
 //	| Exp error { printf("Error type B at Line %d: Exp error\n", @$.first_line); error_flag = 1; }
 	| RETURN Exp error { printf("Error type B at Line %d: Missing \";\"\n", @$.first_line); error_flag = 1; } 
 //	| RETURN error SEMI { printf("Error type B at Line %d: RETURN error SEMI\n", @$.first_line); error_flag = 1; } 
-	| FOR LP Def ExpListEx SEMI ExpListEx RP Stmt { childNum = 8; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
-	| FOR LP ExpListEx SEMI ExpListEx SEMI ExpListEx RP Stmt { childNum = 9; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; childNodeList[8]=$9; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); }
+	| FOR LP Def ExpListEx SEMI ExpListEx RP Stmt { 
+		childNum = 8; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		loop_flag--;
+	}
+	| FOR LP ExpListEx SEMI ExpListEx SEMI ExpListEx RP Stmt { 
+		childNum = 9; childNodeList[0]=$1; childNodeList[1]=$2; childNodeList[2]=$3; childNodeList[3]=$4; childNodeList[4]=$5; childNodeList[5]=$6; childNodeList[6]=$7; childNodeList[7]=$8; childNodeList[8]=$9; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		loop_flag--;
+	}
+	| BREAK SEMI { 
+		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "Stmt", @$.first_line); 
+		//printf("loop flag = %d\n", loop_flag);
+		if (!loop_flag) {
+			printf("Semantic Error at line %d: 'break' should be used in loop.\n", @1.first_line);
+		}
+	}
 	;
 DefList: Def DefList { 
 		childNum = 2; childNodeList[0]=$1; childNodeList[1]=$2; $$=createNode(childNum, childNodeList, "DefList", @$.first_line); 
@@ -411,8 +444,8 @@ char *FieldListToString(FieldList* head){
 FieldList* validDecDefVar(char *name){
 	// Just check current field
 	FieldList* var;
-	var = list_findByName(list_getLast(allTmpVarList)->vars, name);
-	if (var != NULL) return var;
+	//var = list_findByName(list_getLast(allTmpVarList)->vars, name);
+	//if (var != NULL) return var;
 	var = list_findByName(tmpList, name);
 	if (var != NULL) return var;
 	/*
@@ -692,14 +725,6 @@ Type parseSpecifier(struct treeNode* node){
 		}
 	}
 	return type;
-}
-
-void parseCompSt(struct treeNode* node){
-	// CompSt -> LC DefList StmtList RC
-	// DefList -> Def DefList
-	// Def -> Specifier DecList SEMI
-	struct treeNode* DefList = node->child[1];
-	
 }
 
 int main(){

@@ -1,0 +1,13 @@
+struct a{
+	int a;
+	int b;
+};
+struct b{
+	int a;
+	int b;
+};
+int struct_member_with_same_name(){
+	struct a aa;
+	struct b bb;
+	aa = bb;
+}

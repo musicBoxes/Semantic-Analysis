@@ -1,0 +1,3 @@
+int use_undefined_struct(){
+	struct a aa;
+}

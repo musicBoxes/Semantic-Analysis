@@ -44,4 +44,8 @@ for i in range(1, 3):
 	os.system(cmd)
 	cmpFile("./test/test_2_o%02d.out"%i, "./test/test_2_o%02d_output.out"%i)
 	
+for i in range(1, 9):
+    print(i)
+    cmd = "./bin/splc < ./test/self_test_%02d.spl > ./test/self_test_%02d.out"%(i, i)
+    os.system(cmd)
 # os.system("./bin/splc < ./test/self_test.spl > ./test/self_test.out")
