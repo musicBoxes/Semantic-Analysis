@@ -101,8 +101,12 @@
 	struct FieldList* funcArgs;
 	
 	struct FieldList* curFunc;
-	Type baseType;
-	Type funcRetType;
+	
+	char *varName; // record variable name when it is defined
+	
+	Type *baseType;
+	Type *arrayType; 
+	Type *funcRetType;
 	
 	void yyerror(char*);
 	
@@ -116,12 +120,12 @@
 	int addVar(FieldList*, struct treeNode*, int);
 	int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno);
 	
-	Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
-	Type isValidOperation(struct treeNode *a, struct treeNode *b, char *operation, int lineno);
-	Type getExpType(struct treeNode* node, int lineno);
-	Type parseSpecifier(struct treeNode* node);
+	Type* isValidAssign(struct treeNode *a, struct treeNode *b, int lineno);
+	Type* isValidOperation(struct treeNode *a, struct treeNode *b, char *operation, int lineno);
+	Type* getExpTypePtr(struct treeNode* node, int lineno);
+	Type* parseSpecifier(struct treeNode* node);
 
-#line 125 "syntax.tab.c" /* yacc.c:339  */
+#line 129 "syntax.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -227,7 +231,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 231 "syntax.tab.c" /* yacc.c:358  */
+#line 235 "syntax.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -530,14 +534,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    67,    67,    72,    73,    75,    80,    81,    95,    97,
-     101,   106,   124,   128,   136,   149,   150,   152,   159,   165,
-     167,   168,   170,   175,   179,   180,   182,   183,   185,   186,
-     189,   190,   193,   203,   211,   219,   229,   231,   235,   239,
-     247,   250,   259,   262,   264,   265,   267,   271,   283,   299,
-     300,   301,   302,   303,   304,   305,   306,   307,   308,   309,
-     310,   311,   312,   313,   314,   345,   357,   358,   359,   366,
-     367,   368,   369,   371,   373,   374,   376,   377,   379,   389
+       0,    71,    71,    76,    77,    79,    84,    85,    99,   101,
+     105,   110,   126,   130,   139,   152,   157,   173,   184,   191,
+     193,   194,   196,   201,   205,   206,   208,   209,   211,   212,
+     215,   216,   219,   226,   234,   242,   252,   254,   258,   262,
+     270,   273,   281,   284,   286,   287,   289,   293,   306,   322,
+     323,   324,   325,   326,   327,   328,   329,   330,   331,   332,
+     333,   334,   335,   336,   337,   373,   385,   386,   387,   394,
+     395,   396,   397,   399,   401,   402,   404,   405,   407,   414
 };
 #endif
 
@@ -1546,336 +1550,355 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 67 "syntax.y" /* yacc.c:1646  */
+#line 71 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Program", (yyloc).first_line); 
 		//if (!error_flag) treePrint($$); 
 	}
-#line 1555 "syntax.tab.c" /* yacc.c:1646  */
+#line 1559 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 72 "syntax.y" /* yacc.c:1646  */
+#line 76 "syntax.y" /* yacc.c:1646  */
     { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDefList", (yyloc).first_line); }
-#line 1561 "syntax.tab.c" /* yacc.c:1646  */
+#line 1565 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 73 "syntax.y" /* yacc.c:1646  */
+#line 77 "syntax.y" /* yacc.c:1646  */
     { (yyval)=createEmpty(); }
-#line 1567 "syntax.tab.c" /* yacc.c:1646  */
+#line 1571 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 75 "syntax.y" /* yacc.c:1646  */
+#line 79 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDef", (yyloc).first_line); 
 		list_link(globalVariableList, tmpList);
 		//list_link(globalStructList, structList);
 	}
-#line 1577 "syntax.tab.c" /* yacc.c:1646  */
+#line 1581 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 80 "syntax.y" /* yacc.c:1646  */
+#line 84 "syntax.y" /* yacc.c:1646  */
     { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDef", (yyloc).first_line); }
-#line 1583 "syntax.tab.c" /* yacc.c:1646  */
+#line 1587 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 81 "syntax.y" /* yacc.c:1646  */
+#line 85 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDef", (yyloc).first_line); 
 		funcRetType = parseSpecifier((yyvsp[-2]));
-		memcpy(list_getLast(funcList)->type, &funcRetType, sizeof(Type));
+		list_getLast(funcList)->type = funcRetType;
 		FieldList* ret = retList->next;
 		// delete member after checking
 		while (ret != NULL){
-			if (!isSameType(ret->type, &funcRetType)){
+			if (!isSameType(ret->type, funcRetType)){
 				printf("Error type 8 at Line %d: Function’s return value type mismatches the declared type\n", ret->lineno);
 			}
 			ret = ret->next;
 		}
 		list_clear(retList);
 	}
-#line 1602 "syntax.tab.c" /* yacc.c:1646  */
+#line 1606 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 95 "syntax.y" /* yacc.c:1646  */
-    { printf("Error type B at Line %d: Specifier ExtDecList error\n", (yyloc).first_line); error_flag = 1; }
-#line 1608 "syntax.tab.c" /* yacc.c:1646  */
+#line 99 "syntax.y" /* yacc.c:1646  */
+    { printf("Error type B at Line %d: Missing ';'\n", (yyloc).first_line); error_flag = 1; }
+#line 1612 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 97 "syntax.y" /* yacc.c:1646  */
+#line 101 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDecList", (yyloc).first_line);
 		addVar(tmpList, (yyvsp[0]), (yyloc).first_line);
 	}
-#line 1617 "syntax.tab.c" /* yacc.c:1646  */
+#line 1621 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 101 "syntax.y" /* yacc.c:1646  */
+#line 105 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExtDecList", (yyloc).first_line); 
 		addVar(tmpList, (yyvsp[-2]), (yyloc).first_line);
 	}
-#line 1626 "syntax.tab.c" /* yacc.c:1646  */
+#line 1630 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 106 "syntax.y" /* yacc.c:1646  */
+#line 110 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Specifier", (yyloc).first_line); 
-		baseType.category = PRIMITIVE;
 		// "TYPE :"
-		strcpy(baseType.name, (yyvsp[0])->value+6);
-		switch (baseType.name[0]){
+		switch (*((yyvsp[0])->value+6)){
 			case 'i':
-				baseType.primitive = INT;
+				baseType = &INT_TYPE;
 				break;
 			case 'f':
-				baseType.primitive = FLOAT;
+				baseType = &FLOAT_TYPE;
 				break;
 			case 'c':
-				baseType.primitive = CHAR;
+				baseType = &CHAR_TYPE;
 				break;
 		}
 		//printf("INT %d FLOAT %d CHAR %d: %d %s\n", INT, FLOAT, CHAR, baseType.primitive, baseType.name);
 	}
-#line 1649 "syntax.tab.c" /* yacc.c:1646  */
+#line 1651 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 124 "syntax.y" /* yacc.c:1646  */
+#line 126 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Specifier", (yyloc).first_line); 
 	}
-#line 1657 "syntax.tab.c" /* yacc.c:1646  */
+#line 1659 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 128 "syntax.y" /* yacc.c:1646  */
+#line 130 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 5; childNodeList[0]=(yyvsp[-4]); childNodeList[1]=(yyvsp[-3]); childNodeList[2]=(yyvsp[-2]); childNodeList[3]=(yyvsp[-1]); childNodeList[4]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "StructSpecifier", (yyloc).first_line); 
-		baseType.category = STRUCTURE;
-		baseType.structure = (FieldList*)malloc(sizeof(FieldList));
-		list_link(baseType.structure, list_getLast(allTmpVarList)->vars);
+		baseType = (Type*)malloc(sizeof(Type)); memset(baseType, 0, sizeof(Type));
+		baseType->category = STRUCTURE;
+		baseType->structure = (FieldList*)malloc(sizeof(FieldList)); memset(baseType->structure, 0, sizeof(FieldList));
+		list_link(baseType->structure, list_getLast(allTmpVarList)->vars);
 		list_deleteLast(allTmpVarList);
-		addFuncStruct(structList, (yyvsp[-3]), &baseType, (yylsp[-3]).first_line);
+		addFuncStruct(structList, (yyvsp[-3]), baseType, (yylsp[-3]).first_line);
 	}
-#line 1670 "syntax.tab.c" /* yacc.c:1646  */
+#line 1673 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 136 "syntax.y" /* yacc.c:1646  */
+#line 139 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "StructSpecifier", (yyloc).first_line); 
 		FieldList *structType;
 		//"ID: "
 		if ((structType = list_findByName(structList, (yyvsp[0])->value+4)) != NULL){
-			baseType = *(structType->type);
+			baseType = structType->type;
 		}
 		else{
 			error_flag = 1;
 			printf("Semantic Error at line %d: Struct '%s' is used without definition.\n", (yylsp[0]).first_line, (yyvsp[0])->value+4);
 		}
 	}
-#line 1687 "syntax.tab.c" /* yacc.c:1646  */
+#line 1690 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 149 "syntax.y" /* yacc.c:1646  */
-    { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarDec", (yyloc).first_line); }
-#line 1693 "syntax.tab.c" /* yacc.c:1646  */
+#line 152 "syntax.y" /* yacc.c:1646  */
+    { 
+		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarDec", (yyloc).first_line); 
+		varName = (yyvsp[0])->value+4; //"ID: ";
+		//printf(varName);
+	}
+#line 1700 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 150 "syntax.y" /* yacc.c:1646  */
-    { childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarDec", (yyloc).first_line); }
-#line 1699 "syntax.tab.c" /* yacc.c:1646  */
+#line 157 "syntax.y" /* yacc.c:1646  */
+    { 
+		childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarDec", (yyloc).first_line); 
+		Type *lastArrayType = arrayType;
+		arrayType = (Type*)malloc(sizeof(Type)); memset(arrayType, 0, sizeof(Type));
+		Array *array = (Array*)malloc(sizeof(Array)); memset(array, 0, sizeof(Array));
+		if (lastArrayType == NULL){ // first dimension
+			array->base = baseType;
+		}
+		else{
+			array->base = lastArrayType;
+		}
+		array->size = strToInt((yyvsp[-1])->value+5); // "INT: "
+		arrayType->category = ARRAY;
+		arrayType->array = array;
+	}
+#line 1720 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 152 "syntax.y" /* yacc.c:1646  */
+#line 173 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "FunDec", (yyloc).first_line); 
-		addFuncStruct(funcList, (yyvsp[-3]), &funcRetType, (yylsp[-3]).first_line);
+		// we do not need to know function return type in here
+		// return type check will be done after FunDec be recognized
+		addFuncStruct(funcList, (yyvsp[-3]), NULL, (yylsp[-3]).first_line);
 		curFunc = list_getLast(funcList);
-		curFunc->args = (FieldList*)malloc(sizeof(FieldList));
+		curFunc->args = (FieldList*)malloc(sizeof(FieldList)); memset(curFunc->args, 0, sizeof(FieldList));
 		list_link(curFunc->args, tmpList);
+		//printf("FunDec -> ID LP VarList RP\n");
+		//FieldListToString(curFunc->args);
 	}
-#line 1711 "syntax.tab.c" /* yacc.c:1646  */
+#line 1736 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 159 "syntax.y" /* yacc.c:1646  */
+#line 184 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "FunDec", (yyloc).first_line); 
-		addFuncStruct(funcList, (yyvsp[-2]), &funcRetType, (yylsp[-2]).first_line);
+		addFuncStruct(funcList, (yyvsp[-2]), NULL, (yylsp[-2]).first_line);
+		//printf("FunDec -> ID LP RP\n");
 		curFunc = list_getLast(funcList);
 		curFunc->args = NULL;
 	}
-#line 1722 "syntax.tab.c" /* yacc.c:1646  */
+#line 1748 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 165 "syntax.y" /* yacc.c:1646  */
+#line 191 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Missing \")\"\n", (yyloc).first_line); error_flag = 1; }
-#line 1728 "syntax.tab.c" /* yacc.c:1646  */
+#line 1754 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 167 "syntax.y" /* yacc.c:1646  */
+#line 193 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarList", (yyloc).first_line); }
-#line 1734 "syntax.tab.c" /* yacc.c:1646  */
+#line 1760 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 168 "syntax.y" /* yacc.c:1646  */
+#line 194 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "VarList", (yyloc).first_line); }
-#line 1740 "syntax.tab.c" /* yacc.c:1646  */
+#line 1766 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 170 "syntax.y" /* yacc.c:1646  */
+#line 196 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ParamDec", (yyloc).first_line); 
 		addVar(tmpList, (yyvsp[0]), (yyloc).first_line);
 	}
-#line 1749 "syntax.tab.c" /* yacc.c:1646  */
+#line 1775 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 175 "syntax.y" /* yacc.c:1646  */
+#line 201 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "CompSt", (yyloc).first_line); 
 		list_deleteLast(allTmpVarList);
 	}
-#line 1758 "syntax.tab.c" /* yacc.c:1646  */
+#line 1784 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 179 "syntax.y" /* yacc.c:1646  */
+#line 205 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Missing \"}\"\n", (yyloc).first_line); error_flag = 1; }
-#line 1764 "syntax.tab.c" /* yacc.c:1646  */
+#line 1790 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 180 "syntax.y" /* yacc.c:1646  */
+#line 206 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Definition must at head.\n", (yylsp[-3]).first_line); error_flag = 1; }
-#line 1770 "syntax.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 28:
-#line 185 "syntax.y" /* yacc.c:1646  */
-    { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "StmtList", (yyloc).first_line); }
-#line 1776 "syntax.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 29:
-#line 186 "syntax.y" /* yacc.c:1646  */
-    { (yyval)=createEmpty(); }
-#line 1782 "syntax.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 30:
-#line 189 "syntax.y" /* yacc.c:1646  */
-    { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); }
-#line 1788 "syntax.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 31:
-#line 190 "syntax.y" /* yacc.c:1646  */
-    { 
-		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
-	}
 #line 1796 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
+  case 28:
+#line 211 "syntax.y" /* yacc.c:1646  */
+    { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "StmtList", (yyloc).first_line); }
+#line 1802 "syntax.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 212 "syntax.y" /* yacc.c:1646  */
+    { (yyval)=createEmpty(); }
+#line 1808 "syntax.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 215 "syntax.y" /* yacc.c:1646  */
+    { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); }
+#line 1814 "syntax.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 216 "syntax.y" /* yacc.c:1646  */
+    { 
+		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
+	}
+#line 1822 "syntax.tab.c" /* yacc.c:1646  */
+    break;
+
   case 32:
-#line 193 "syntax.y" /* yacc.c:1646  */
+#line 219 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
-		Type type = getExpType((yyvsp[-1]), (yylsp[-1]).first_line);
-		FieldList *ret = (FieldList*)malloc(sizeof(FieldList));
+		FieldList *ret = (FieldList*)malloc(sizeof(FieldList)); memset(ret, 0, sizeof(FieldList));
 		ret->lineno = (yylsp[-1]).first_line;
-		ret->next = NULL;
-		ret->type = (Type*)malloc(sizeof(Type));
-		memcpy(ret->type, &type, sizeof(Type));
+		ret->type = getExpTypePtr((yyvsp[-1]), (yylsp[-1]).first_line);
 		list_pushBack(retList, ret);
 	}
-#line 1811 "syntax.tab.c" /* yacc.c:1646  */
+#line 1834 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 203 "syntax.y" /* yacc.c:1646  */
+#line 226 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 5; childNodeList[0]=(yyvsp[-4]); childNodeList[1]=(yyvsp[-3]); childNodeList[2]=(yyvsp[-2]); childNodeList[3]=(yyvsp[-1]); childNodeList[4]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
-		Type type = getExpType((yyvsp[-2]), (yylsp[-2]).first_line);
-		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+		Type *typePtr = getExpTypePtr((yyvsp[-2]), (yylsp[-2]).first_line);
+		if (!(typePtr->category == PRIMITIVE && typePtr->primitive == INT)){
 			error_flag = 1;
 			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", (yylsp[-2]).first_line);
 		}
 	}
-#line 1824 "syntax.tab.c" /* yacc.c:1646  */
+#line 1847 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 211 "syntax.y" /* yacc.c:1646  */
+#line 234 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 7; childNodeList[0]=(yyvsp[-6]); childNodeList[1]=(yyvsp[-5]); childNodeList[2]=(yyvsp[-4]); childNodeList[3]=(yyvsp[-3]); childNodeList[4]=(yyvsp[-2]); childNodeList[5]=(yyvsp[-1]); childNodeList[6]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
-		Type type = getExpType((yyvsp[-4]), (yylsp[-4]).first_line);
-		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+		Type *typePtr = getExpTypePtr((yyvsp[-4]), (yylsp[-4]).first_line);
+		if (!(typePtr->category == PRIMITIVE && typePtr->primitive == INT)){
 			error_flag = 1;
 			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", (yylsp[-4]).first_line);
 		}
 	}
-#line 1837 "syntax.tab.c" /* yacc.c:1646  */
+#line 1860 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 219 "syntax.y" /* yacc.c:1646  */
+#line 242 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 5; childNodeList[0]=(yyvsp[-4]); childNodeList[1]=(yyvsp[-3]); childNodeList[2]=(yyvsp[-2]); childNodeList[3]=(yyvsp[-1]); childNodeList[4]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
 		loop_flag--;
-		Type type = getExpType((yyvsp[-2]), (yylsp[-2]).first_line);
-		if (!(type.category == PRIMITIVE && type.primitive == INT)){
+		Type *typePtr = getExpTypePtr((yyvsp[-2]), (yylsp[-2]).first_line);
+		if (!(typePtr->category == PRIMITIVE && typePtr->primitive == INT)){
 			error_flag = 1;
 			printf("Semantic Error at line %d: Use non-int type variable as condition.\n", (yylsp[-2]).first_line);
 		}
 	}
-#line 1851 "syntax.tab.c" /* yacc.c:1646  */
+#line 1874 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 229 "syntax.y" /* yacc.c:1646  */
+#line 252 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Missing \";\"\n", (yyloc).first_line); error_flag = 1; }
-#line 1857 "syntax.tab.c" /* yacc.c:1646  */
+#line 1880 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 231 "syntax.y" /* yacc.c:1646  */
+#line 254 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 8; childNodeList[0]=(yyvsp[-7]); childNodeList[1]=(yyvsp[-6]); childNodeList[2]=(yyvsp[-5]); childNodeList[3]=(yyvsp[-4]); childNodeList[4]=(yyvsp[-3]); childNodeList[5]=(yyvsp[-2]); childNodeList[6]=(yyvsp[-1]); childNodeList[7]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
 		loop_flag--;
 	}
-#line 1866 "syntax.tab.c" /* yacc.c:1646  */
+#line 1889 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 235 "syntax.y" /* yacc.c:1646  */
+#line 258 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 9; childNodeList[0]=(yyvsp[-8]); childNodeList[1]=(yyvsp[-7]); childNodeList[2]=(yyvsp[-6]); childNodeList[3]=(yyvsp[-5]); childNodeList[4]=(yyvsp[-4]); childNodeList[5]=(yyvsp[-3]); childNodeList[6]=(yyvsp[-2]); childNodeList[7]=(yyvsp[-1]); childNodeList[8]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
 		loop_flag--;
 	}
-#line 1875 "syntax.tab.c" /* yacc.c:1646  */
+#line 1898 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 239 "syntax.y" /* yacc.c:1646  */
+#line 262 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Stmt", (yyloc).first_line); 
 		//printf("loop flag = %d\n", loop_flag);
@@ -1883,86 +1906,86 @@ yyreduce:
 			printf("Semantic Error at line %d: 'break' should be used in loop.\n", (yylsp[-1]).first_line);
 		}
 	}
-#line 1887 "syntax.tab.c" /* yacc.c:1646  */
+#line 1910 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 247 "syntax.y" /* yacc.c:1646  */
+#line 270 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "DefList", (yyloc).first_line); 
 	}
-#line 1895 "syntax.tab.c" /* yacc.c:1646  */
+#line 1918 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 250 "syntax.y" /* yacc.c:1646  */
+#line 273 "syntax.y" /* yacc.c:1646  */
     { 
 		(yyval)=createEmpty(); 
-		FieldList* varDefList = (FieldList*)malloc(sizeof(FieldList));
-		varDefList->next = NULL;
-		varDefList->vars = (FieldList*)malloc(sizeof(FieldList));
+		FieldList* varDefList = (FieldList*)malloc(sizeof(FieldList)); memset(varDefList, 0, sizeof(FieldList));
+		varDefList->vars = (FieldList*)malloc(sizeof(FieldList)); memset(varDefList->vars, 0, sizeof(FieldList));
 		list_link(varDefList->vars, tmpList);
 		list_pushBack(allTmpVarList, varDefList);
 	}
-#line 1908 "syntax.tab.c" /* yacc.c:1646  */
+#line 1930 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 259 "syntax.y" /* yacc.c:1646  */
+#line 281 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Def", (yyloc).first_line); 
 	}
-#line 1916 "syntax.tab.c" /* yacc.c:1646  */
+#line 1938 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 262 "syntax.y" /* yacc.c:1646  */
+#line 284 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Missing \";\"\n", (yyloc).first_line); error_flag = 1; }
-#line 1922 "syntax.tab.c" /* yacc.c:1646  */
+#line 1944 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 264 "syntax.y" /* yacc.c:1646  */
+#line 286 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "DecList", (yyloc).first_line); }
-#line 1928 "syntax.tab.c" /* yacc.c:1646  */
+#line 1950 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 265 "syntax.y" /* yacc.c:1646  */
+#line 287 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "DecList", (yyloc).first_line); }
-#line 1934 "syntax.tab.c" /* yacc.c:1646  */
+#line 1956 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 267 "syntax.y" /* yacc.c:1646  */
+#line 289 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Dec", (yyloc).first_line); 
 		addVar(tmpList, (yyvsp[0]), (yyloc).first_line);
 	}
-#line 1943 "syntax.tab.c" /* yacc.c:1646  */
+#line 1965 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 271 "syntax.y" /* yacc.c:1646  */
+#line 293 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Dec", (yyloc).first_line); 
 		if (addVar(tmpList, (yyvsp[-2]), (yyloc).first_line) == 0){
-			Type tmp = getExpType((yyvsp[0]), (yylsp[-1]).first_line);
-			if (!isSameType(&tmp, list_getLast(tmpList)->type)){
+			Type *typePtr = getExpTypePtr((yyvsp[0]), (yylsp[-1]).first_line);
+			//printf("%s Exp category = %d\n", $1->child[0]->value, typePtr->category);
+			if (!isSameType(typePtr, list_getLast(tmpList)->type)){
 				error_flag = 1;
 				printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", (yylsp[-1]).first_line);
 			}
 		}
 	}
-#line 1958 "syntax.tab.c" /* yacc.c:1646  */
+#line 1981 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 283 "syntax.y" /* yacc.c:1646  */
+#line 306 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); 
-		Type type = isValidAssign((yyvsp[-2]), (yyvsp[0]), (yylsp[-1]).first_line);
-		if (type.category == DIFFERENT) {
+		Type *typePtr = isValidAssign((yyvsp[-2]), (yyvsp[0]), (yylsp[-1]).first_line);
+		if (typePtr->category == DIFFERENT) {
 			error_flag = 1;
 			printf("Error type 5 at Line %d: unmatching type on both sides of assignment\n", (yylsp[-1]).first_line);
 		}
@@ -1975,101 +1998,101 @@ yyreduce:
 			}
 		}
 	}
-#line 1979 "syntax.tab.c" /* yacc.c:1646  */
+#line 2002 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 299 "syntax.y" /* yacc.c:1646  */
+#line 322 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 1985 "syntax.tab.c" /* yacc.c:1646  */
+#line 2008 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 300 "syntax.y" /* yacc.c:1646  */
+#line 323 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 1991 "syntax.tab.c" /* yacc.c:1646  */
+#line 2014 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 301 "syntax.y" /* yacc.c:1646  */
+#line 324 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 1997 "syntax.tab.c" /* yacc.c:1646  */
+#line 2020 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 302 "syntax.y" /* yacc.c:1646  */
+#line 325 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2003 "syntax.tab.c" /* yacc.c:1646  */
+#line 2026 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 303 "syntax.y" /* yacc.c:1646  */
+#line 326 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2009 "syntax.tab.c" /* yacc.c:1646  */
+#line 2032 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 304 "syntax.y" /* yacc.c:1646  */
+#line 327 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2015 "syntax.tab.c" /* yacc.c:1646  */
+#line 2038 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 305 "syntax.y" /* yacc.c:1646  */
+#line 328 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2021 "syntax.tab.c" /* yacc.c:1646  */
+#line 2044 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 306 "syntax.y" /* yacc.c:1646  */
+#line 329 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2027 "syntax.tab.c" /* yacc.c:1646  */
+#line 2050 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 307 "syntax.y" /* yacc.c:1646  */
+#line 330 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2033 "syntax.tab.c" /* yacc.c:1646  */
+#line 2056 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 308 "syntax.y" /* yacc.c:1646  */
+#line 331 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2039 "syntax.tab.c" /* yacc.c:1646  */
+#line 2062 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 309 "syntax.y" /* yacc.c:1646  */
+#line 332 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2045 "syntax.tab.c" /* yacc.c:1646  */
+#line 2068 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 310 "syntax.y" /* yacc.c:1646  */
+#line 333 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2051 "syntax.tab.c" /* yacc.c:1646  */
+#line 2074 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 311 "syntax.y" /* yacc.c:1646  */
+#line 334 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2057 "syntax.tab.c" /* yacc.c:1646  */
+#line 2080 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 312 "syntax.y" /* yacc.c:1646  */
+#line 335 "syntax.y" /* yacc.c:1646  */
     { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2063 "syntax.tab.c" /* yacc.c:1646  */
+#line 2086 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 313 "syntax.y" /* yacc.c:1646  */
+#line 336 "syntax.y" /* yacc.c:1646  */
     { childNum = 2; childNodeList[0]=(yyvsp[-1]); childNodeList[1]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2069 "syntax.tab.c" /* yacc.c:1646  */
+#line 2092 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 314 "syntax.y" /* yacc.c:1646  */
+#line 337 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); 
 		//printf("Size = %d %s\n", list_size(funcList), $1->value+4);
@@ -2086,9 +2109,14 @@ yyreduce:
 		else{
 			FieldList *cur1 = func->args->next, *cur2 = funcArgs->next;
 			int ok = 1;
+			FieldList *p1 = cur1, *p2 = cur2;
+			/*int cnt1 = 0, cnt2 = 0;
+			while (p1 != NULL) cnt1 ++, p1 = p1->next;
+			while (p2 != NULL) cnt2 ++, p2 = p2->next;
+			printf("len1 = %d len2 = %d\n", cnt1, cnt2);*/
 			//printf("Size %d %d\n", list_size(func->args), list_size(funcArgs));
 			while (cur1 != NULL && cur2 != NULL){
-				if (!isSameType(cur1->type, cur1->type)){
+				if (!isSameType(cur1->type, cur2->type)){
 					ok = 0;
 					break;
 				}
@@ -2101,11 +2129,11 @@ yyreduce:
 		}
 		list_clear(funcArgs);
 	}
-#line 2105 "syntax.tab.c" /* yacc.c:1646  */
+#line 2133 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 345 "syntax.y" /* yacc.c:1646  */
+#line 373 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); 
 		if (list_findByName(funcList, (yyvsp[-2])->value+4) == NULL) { // "ID: "
@@ -2118,23 +2146,23 @@ yyreduce:
 			}
 		}
 	}
-#line 2122 "syntax.tab.c" /* yacc.c:1646  */
+#line 2150 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 357 "syntax.y" /* yacc.c:1646  */
+#line 385 "syntax.y" /* yacc.c:1646  */
     { childNum = 4; childNodeList[0]=(yyvsp[-3]); childNodeList[1]=(yyvsp[-2]); childNodeList[2]=(yyvsp[-1]); childNodeList[3]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2128 "syntax.tab.c" /* yacc.c:1646  */
+#line 2156 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 358 "syntax.y" /* yacc.c:1646  */
+#line 386 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2134 "syntax.tab.c" /* yacc.c:1646  */
+#line 2162 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 359 "syntax.y" /* yacc.c:1646  */
+#line 387 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); 
 		if (validUseVar((yyvsp[0])->value+4) == NULL) { //"ID: "
@@ -2142,95 +2170,89 @@ yyreduce:
 			printf("Error type 1 at Line %d: Variable '%s' is not defined\n", (yyloc).first_line, (yyvsp[0])->value+4);
 		}
 	}
-#line 2146 "syntax.tab.c" /* yacc.c:1646  */
+#line 2174 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 366 "syntax.y" /* yacc.c:1646  */
+#line 394 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2152 "syntax.tab.c" /* yacc.c:1646  */
+#line 2180 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 367 "syntax.y" /* yacc.c:1646  */
+#line 395 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2158 "syntax.tab.c" /* yacc.c:1646  */
+#line 2186 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 368 "syntax.y" /* yacc.c:1646  */
+#line 396 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Exp", (yyloc).first_line); }
-#line 2164 "syntax.tab.c" /* yacc.c:1646  */
+#line 2192 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 369 "syntax.y" /* yacc.c:1646  */
+#line 397 "syntax.y" /* yacc.c:1646  */
     { printf("Error type B at Line %d: Missing \")\"\n", (yyloc).first_line); error_flag = 1; }
-#line 2170 "syntax.tab.c" /* yacc.c:1646  */
+#line 2198 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 371 "syntax.y" /* yacc.c:1646  */
+#line 399 "syntax.y" /* yacc.c:1646  */
     { /*printf("error\n"); yyerrok;*/ error_flag = 1; }
-#line 2176 "syntax.tab.c" /* yacc.c:1646  */
+#line 2204 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 373 "syntax.y" /* yacc.c:1646  */
+#line 401 "syntax.y" /* yacc.c:1646  */
     { childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExpList", (yyloc).first_line); }
-#line 2182 "syntax.tab.c" /* yacc.c:1646  */
+#line 2210 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 374 "syntax.y" /* yacc.c:1646  */
+#line 402 "syntax.y" /* yacc.c:1646  */
     { childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "ExpList", (yyloc).first_line); }
-#line 2188 "syntax.tab.c" /* yacc.c:1646  */
+#line 2216 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 376 "syntax.y" /* yacc.c:1646  */
+#line 404 "syntax.y" /* yacc.c:1646  */
     { (yyval)=(yyvsp[0]); }
-#line 2194 "syntax.tab.c" /* yacc.c:1646  */
+#line 2222 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 377 "syntax.y" /* yacc.c:1646  */
+#line 405 "syntax.y" /* yacc.c:1646  */
     { (yyval) = createEmpty(); }
-#line 2200 "syntax.tab.c" /* yacc.c:1646  */
+#line 2228 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 379 "syntax.y" /* yacc.c:1646  */
+#line 407 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 3; childNodeList[0]=(yyvsp[-2]); childNodeList[1]=(yyvsp[-1]); childNodeList[2]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Args", (yyloc).first_line); 
-		FieldList* arg = (FieldList*)malloc(sizeof(FieldList));
-		arg->next = NULL;
-		arg->type = (Type*)malloc(sizeof(Type));
-		Type type = getExpType((yyvsp[-2]), (yylsp[-2]).first_line);
-		memcpy(arg->type, &type, sizeof(type));
+		FieldList* arg = (FieldList*)malloc(sizeof(FieldList)); memset(arg, 0, sizeof(FieldList));
+		arg->type = getExpTypePtr((yyvsp[-2]), (yylsp[-2]).first_line);
 		//printf("type %s", TypeToString(arg->type));
 		list_pushBack(funcArgs, arg);
 	}
-#line 2215 "syntax.tab.c" /* yacc.c:1646  */
+#line 2240 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 389 "syntax.y" /* yacc.c:1646  */
+#line 414 "syntax.y" /* yacc.c:1646  */
     { 
 		childNum = 1; childNodeList[0]=(yyvsp[0]); (yyval)=createNode(childNum, childNodeList, "Args", (yyloc).first_line); 
-		FieldList* arg = (FieldList*)malloc(sizeof(FieldList));
-		arg->next = NULL;
-		arg->type = (Type*)malloc(sizeof(Type));
-		Type type = getExpType((yyvsp[0]), (yylsp[0]).first_line);
-		memcpy(arg->type, &type, sizeof(type));
+		FieldList* arg = (FieldList*)malloc(sizeof(FieldList)); memset(arg, 0, sizeof(FieldList));
+		arg->type = getExpTypePtr((yyvsp[0]), (yylsp[0]).first_line);
 		//printf("type %d %d %s\n", type.category, type.primitive, TypeToString(&type));
 		list_pushBack(funcArgs, arg);
 	}
-#line 2230 "syntax.tab.c" /* yacc.c:1646  */
+#line 2252 "syntax.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2234 "syntax.tab.c" /* yacc.c:1646  */
+#line 2256 "syntax.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2465,7 +2487,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 400 "syntax.y" /* yacc.c:1906  */
+#line 422 "syntax.y" /* yacc.c:1906  */
 
 
 void yyerror(char* s){
@@ -2473,7 +2495,6 @@ void yyerror(char* s){
 }
 
 char* TypeToString(Type *type){
-	char* res;
 	switch (type->category){
 		case PRIMITIVE:
 			//res = (char*)malloc(sizeof(char)*256);
@@ -2484,8 +2505,7 @@ char* TypeToString(Type *type){
 			//return res;
 			break;
 		case ARRAY:
-			res = ArrayToString(type->array);
-			return res;
+			return ArrayToString(type->array);
 			break;
 		case STRUCTURE:
 			printf("FieldList in Struct: %d\n", list_size(type->structure));
@@ -2493,7 +2513,7 @@ char* TypeToString(Type *type){
 			return "struct";
 			break;
 	}
-	return res;
+	return NULL;
 }
 
 char* ArrayToString(Array *array){
@@ -2508,6 +2528,7 @@ char *FieldListToString(FieldList* head){
 		printf("Name:%s Type:%s\n", cur->name, TypeToString(cur->type));
 		cur = cur->next;
 	}
+	return NULL;
 }
 
 FieldList* validDecDefVar(char *name){
@@ -2516,7 +2537,8 @@ FieldList* validDecDefVar(char *name){
 	//var = list_findByName(list_getLast(allTmpVarList)->vars, name);
 	//if (var != NULL) return var;
 	var = list_findByName(tmpList, name);
-	if (var != NULL) return var;
+	if (var != NULL) 
+		return var;
 	/*
 	var = list_getLast(funcList);
 	if (var != NULL){
@@ -2532,129 +2554,107 @@ FieldList* validUseVar(char *name){
 	// check all fields
 	FieldList* var;
 	
+	var = list_findByName(globalVariableList, name);
+	if (var != NULL)
+		return var;
 	FieldList* cur = allTmpVarList->next;
 	while (cur != NULL){
 		var = list_findByName(cur->vars, name);
-		if (var != NULL) return var;
+		if (var != NULL) 
+			return var;
 		cur = cur->next;
 	}
 	var = list_findByName(tmpList, name);
-	if (var != NULL) return var;
+	if (var != NULL) 
+		return var;
 	var = list_getLast(funcList);
-	if (var != NULL){
+	if (var != NULL)
 		return list_findByName(var->args, name);
-	}
-	else 
-		return NULL;
 	return NULL;
 }
 
 FieldList* varExist(char *name){
 	FieldList* var;
 	var = list_findByName(list_getLast(allTmpVarList)->vars, name);
-	if (var != NULL) return var;
+	if (var != NULL) 
+		return var;
 	var = list_findByName(tmpList, name);
-	if (var != NULL) return var;
+	if (var != NULL) 
+		return var;
 	var = list_getLast(funcList);
-	if (var != NULL){
+	if (var != NULL)
 		return list_findByName(var->args, name);
-	}
-	else 
-		return NULL;
 	return NULL;
 }
 
 int addVar(FieldList* head, struct treeNode* node, int lineno){
 	// "ID: "
-	if (validDecDefVar(node->child[0]->value+4) != NULL)
+	if (validDecDefVar(varName) != NULL)
 	{
 		error_flag = 1;
 		printf("Error type 3 at Line %d: Variable '%s' is redefined\n", lineno, node->child[0]->value+4);
 		return 1;
 	}
-	if (node->childNum == 1){ // just variable, not array
-		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
-		newItem->type = (Type*)malloc(sizeof(Type));
-		memcpy(newItem->type, &baseType, sizeof(Type));
-		strcpy(newItem->name, node->child[0]->value+4);
-		newItem->next = NULL;
-		list_pushBack(head, newItem);
-	}
-	if (node->childNum == 4){ // array
-		FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
-		
-		Array *array = (Array*)malloc(sizeof(Array));
-		array->base = (Type*)malloc(sizeof(Type));
-		memcpy(array->base, &baseType, sizeof(Type));
-		array->size = strToInt(node->child[2]->value+5); // "INT: "
-		
-		newItem->type = (Type*)malloc(sizeof(Type));
-		newItem->type->category = ARRAY;
-		newItem->type->array = array;
-		// just support 1 dimension array
-		strcpy(newItem->name, node->child[0]->child[0]->value+4);
-		newItem->next = NULL;
-		list_pushBack(head, newItem);
-	}
+	FieldList* newVar = (FieldList*)malloc(sizeof(FieldList)); memset(newVar, 0, sizeof(FieldList));
+	strcpy(newVar->name, varName);
+	//newVar->type = baseType;
+	newVar->type = (arrayType != NULL) ? arrayType : baseType ;
+	list_pushBack(head, newVar);
+	arrayType = NULL; // reset it
 	return 0;
 }
 
-int addFuncStruct(FieldList* head, struct treeNode* node, Type *type, int lineno){
+int addFuncStruct(FieldList* head, struct treeNode* node, Type *typePtr, int lineno){
 	// "ID: "
 	if (list_findByName(head, node->value+4) != NULL){
 		error_flag = 1;
-		if (!strcmp(head->name, "func"))
+		if (!strcmp(head->name, "function"))
 			printf("Error type 4 at Line %d: Function '%s' is redefined\n", lineno, node->value+4);
 		if (!strcmp(head->name, "struct"))
 			printf("Error type 15 at Line %d: Redefine the same structure type(same name).\n", lineno, node->value+4);
 		return 1;
 	}
 	
-	FieldList* newItem = (FieldList*)malloc(sizeof(FieldList));
-	newItem->type = (Type*)malloc(sizeof(Type));
-	memcpy(newItem->type, type, sizeof(Type));
-	strcpy(newItem->name, node->value+4);
-	newItem->next = NULL;
+	FieldList* newItem = (FieldList*)malloc(sizeof(FieldList)); memset(newItem, 0, sizeof(FieldList));
+	
+	newItem->type = typePtr;
+	strcpy(newItem->name, node->value+4); // "ID: "
+	
 	list_pushBack(head, newItem);
 	
 	return 0;
 }
 
-Type isValidAssign(struct treeNode *a, struct treeNode *b, int lineno){
-	Type type_a, type_b;
-	type_a = getExpType(a, lineno);
-	type_b = getExpType(b, lineno);
-	Type type;
-	if (isSameType(&type_a, &type_b)){
-		return type_a;
+Type* isValidAssign(struct treeNode *a, struct treeNode *b, int lineno){
+	Type *typePtr_a, *typePtr_b;
+	typePtr_a = getExpTypePtr(a, lineno);
+	typePtr_b = getExpTypePtr(b, lineno);
+	if (isSameType(typePtr_a, typePtr_b)){
+		return typePtr_a;
 	}
 	else {
-		type.category = DIFFERENT;
-		return type;
+		return &DIFFERENT_TYPE;
 	}
 }
 
-Type isValidOperation(struct treeNode *a, struct treeNode *b, char* operation, int lineno){
-	Type type_a, type_b;
-	type_a = getExpType(a, lineno);
-	type_b = getExpType(b, lineno);
-	if (type_a.category == IGNORE) return type_a;
-	if (type_b.category == IGNORE) return type_b;
-	//printf("a %d %d b %d %d\n", type_a.category, type_a.primitive, type_b.category, type_b.primitive);
-	Type type;
-	if (type_a.category == PRIMITIVE && (type_a.primitive == INT || type_a.primitive == FLOAT) && isSameType(&type_a, &type_b)){
-		return type_a;
+Type* isValidOperation(struct treeNode *a, struct treeNode *b, char* operation, int lineno){
+	Type *typePtr_a, *typePtr_b;
+	typePtr_a = getExpTypePtr(a, lineno);
+	typePtr_b = getExpTypePtr(b, lineno);
+	//printf("%s %s %d\n", TypeToString(typePtr_a), TypeToString(typePtr_b), isSameType(typePtr_a, typePtr_b));
+	if (typePtr_a->category == IGNORE || typePtr_b->category == IGNORE) 
+		return &IGNORE_TYPE;
+	if (typePtr_a->category == PRIMITIVE && (typePtr_a->primitive == INT || typePtr_a->primitive == FLOAT) && isSameType(typePtr_a, typePtr_b)){
+		return typePtr_a;
 	}
 	else {
 		error_flag = 1;
 		printf("Error type 7 at Line %d: Invalid operation '%s' on non-number variables\n", lineno, operation);
-		type.category = DIFFERENT;
-		return type;
+		return &DIFFERENT_TYPE;
 	}
 }
 
-Type getExpType(struct treeNode* node, int lineno){
-	Type type;
+Type* getExpTypePtr(struct treeNode* node, int lineno){
 	switch (node->childNum){
 		case 1: // ID INT CHAR FLOAT
 			//printf("node value = %s\n", node->child[0]->value);
@@ -2663,47 +2663,40 @@ Type getExpType(struct treeNode* node, int lineno){
 					if (node->child[0]->value[1] == 'D'){ // ID
 						FieldList* var;
 						if ((var = validUseVar(node->child[0]->value+4)) != NULL){ //"ID: "
-							return *(var->type);
+							return var->type;
 						}
 						else{ // not find this variable, just ignore it
 							//printf("Ignore it!\n");
 							//printf("node value = %s\n", node->value);
-							type.category = IGNORE;
-							return type;
+							return &IGNORE_TYPE;
 						}
 					}
 					else { // INT
-						type.category = PRIMITIVE;
-						type.primitive = INT;
-						return type;
+						return &INT_TYPE;
 					}
 					break;
 				case 'C': // CHAR
-					type.category = PRIMITIVE;
-					type.primitive = CHAR;
-					return type;
+					return &CHAR_TYPE;
 					break;
 				case 'F': // FLOAT
-					type.category = PRIMITIVE;
-					type.primitive = FLOAT;
-					return type;
+					return &FLOAT_TYPE;
 					break;
 			}
 			break;
 		case 2: // only 'MINUS Exp' or 'NOT Exp'
-			return getExpType(node->child[1], lineno);
+			return getExpTypePtr(node->child[1], lineno);
 			break;
 		case 3:
 			// LP Exp RP
 			if (!strcmp(node->child[0]->value, "LP") && !strcmp(node->child[2]->value, "RP")){
-				return getExpType(node->child[1], lineno);
+				return getExpTypePtr(node->child[1], lineno);
 			}
 			// ID LP RP
 			if (!strcmp(node->child[1]->value, "LP") && !strcmp(node->child[2]->value, "RP")){
 				FieldList *func = list_findByName(funcList, node->child[0]->value+4); // "ID: "
-				char *res = TypeToString(func->type);
+				//char *res = TypeToString(func->type);
 				//printf("function return type: %s\n", res);
-				return *(func->type);
+				return func->type;
 			}
 			if (!strcmp(node->child[1]->value, "ASSIGN")){ // for ASSIGN operation, just ensure two Exp has same type
 				return isValidAssign(node->child[0], node->child[2], lineno);
@@ -2712,29 +2705,27 @@ Type getExpType(struct treeNode* node, int lineno){
 				// Exp DOT ID
 				//printf("Operation: %s\n", node->child[1]->value);
 				if (!strcmp("DOT", node->child[1]->value)){
-					type = getExpType(node->child[0], lineno);
-					if (type.category != STRUCTURE){
+					Type *typePtr = getExpTypePtr(node->child[0], lineno);
+					if (typePtr->category != STRUCTURE){
 						error_flag = 1;
 						printf("Error type 13 at Line %d: Accessing member of non-structure variable\n", lineno);
-						type.category = IGNORE;
-						return type;
+						return &IGNORE_TYPE;
 					}
 					else{
 						//printf("StructList: %d %d %d\n", type.category, type.structure, list_size(type.structure));
 						//FieldListToString(type.structure);
-						FieldList* var = list_findByName(type.structure, node->child[2]->value+4);
+						FieldList* var = list_findByName(typePtr->structure, node->child[2]->value+4);
 						if (var == NULL){
 							error_flag = 1;
 							printf("Error type 14 at Line %d: Accessing an undefined structure member '%s'\n", lineno, node->child[2]->value+4);
-							type.category = IGNORE;
-							return type;
+							return &IGNORE_TYPE;
 						}
 						else {
-							return *(var->type);
+							return (var->type);
 						}
 					}
 				}
-				else{
+				else{ // Exp Op Exp
 					return isValidOperation(node->child[0], node->child[2], node->child[1]->value, lineno);
 				}
 			}
@@ -2743,57 +2734,49 @@ Type getExpType(struct treeNode* node, int lineno){
 			// ID LP Args RP
 			if (!strcmp(node->child[1]->value, "LP") && !strcmp(node->child[3]->value, "RP")){
 				FieldList *func = list_findByName(funcList, node->child[0]->value+4); // "ID: "
-				if (func != NULL) return *(func->type);
-				else{
-					type.category = IGNORE;
-					return type;
-				}
+				if (func != NULL) return (func->type);
+				else return &IGNORE_TYPE;
 			}
 			//Exp LB Exp RB
 			if (!strcmp(node->child[1]->value, "LB") && !strcmp(node->child[3]->value, "RB")){
-				type = getExpType(node->child[2], lineno);
+				Type *typePtr = getExpTypePtr(node->child[2], lineno);
 				//printf("Type category: %d primitive %d INT %d BOOL %d childNum %d\n", 
 				//	type.category, type.primitive, INT, (type.category == PRIMITIVE && type.primitive == INT), node->child[2]->childNum);
-				if (!(type.category == PRIMITIVE && type.primitive == INT)){
+				if (!(typePtr->category == PRIMITIVE && typePtr->primitive == INT)){
 					error_flag = 1;
 					printf("Error type 12 at Line %d: Array indexing with non-integer type expression\n", lineno);
-					type.category = IGNORE;
-					return type;
+					return &IGNORE_TYPE;
 				}
-				type = getExpType(node->child[0], lineno);
-				if (type.category != ARRAY){
+				typePtr = getExpTypePtr(node->child[0], lineno);
+				if (typePtr->category != ARRAY){
 					error_flag = 1;
 					printf("Error type 10 at Line %d: Applying indexing operator '[]' on non-array type variabless\n", lineno);
-					type.category = IGNORE;
-					return type;
+					return &IGNORE_TYPE;
 				}
-				type = *(type.array->base);
-				return type;
+				return (typePtr->array->base);
 			}
 			break;
 	}
+	return NULL;
 }
 
-Type parseSpecifier(struct treeNode* node){
-	Type type;
+Type* parseSpecifier(struct treeNode* node){
 	node = node->child[0];
-	if (strcmp(node->value, "TYPE")){
-		type.category = PRIMITIVE;
+	if (!memcmp(node->value, "TYPE", 4)){
 		// "TYPE :"
-		strcpy(type.name, node->value+6);
-		switch (type.name[0]){
+		switch (*(node->value+6)){
 			case 'i':
-				type.primitive = INT;
+				return &INT_TYPE;
 				break;
 			case 'f':
-				type.primitive = FLOAT;
+				return &FLOAT_TYPE;
 				break;
 			case 'c':
-				type.primitive = CHAR;
+				return &CHAR_TYPE;
 				break;
 		}
 	}
-	return type;
+	return NULL;
 }
 
 int main(int argc, char** args){
@@ -2809,21 +2792,21 @@ int main(int argc, char** args){
 	strcpy(outputPath+strlen(outputPath)-3, "out");
 	//printf("OutputPath = %s\n", outputPath);
 	freopen(outputPath, "w", stdout);
-		
+	
 	globalVariableList = list_init();
 	globalStructList = list_init();
 	
 	tmpList = list_init();
 	allTmpVarList = list_init();
 	
-	funcList = list_init(); memcpy(funcList->name, "func", 4);
+	funcList = list_init(); strcpy(funcList->name, "function");
 	
-	retList = list_init();
-	funcArgs = list_init();
+	retList = list_init(); strcpy(retList->name, "return");
+	funcArgs = list_init(); strcpy(funcArgs->name, "functionArguments");
 	
-	structList = list_init(); memcpy(structList->name, "struct", 6);
+	structList = list_init(); strcpy(structList->name, "struct");
 	
-	
+	//printf("Parsing...\n");
     yyparse();
 	//#define DEBUG
 	#ifdef DEBUG

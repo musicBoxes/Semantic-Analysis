@@ -1,0 +1,20 @@
+int aa[10];
+struct s{
+	int a;
+	int b;
+};
+struct ss{
+	int a;
+	int b;
+};
+int s(){
+	int a[1][2];
+	int b[1][2];
+	int c[2][1];
+	struct s s_arr[15];
+	struct ss ss_arr[15];
+	a = b;
+	b = c;
+	aa = a;
+	s_arr = ss_arr;
+}

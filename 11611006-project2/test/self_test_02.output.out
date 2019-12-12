@@ -1,0 +1,5 @@
+Error type 5 at Line 3: unmatching type on both sides of assignment
+Semantic Error at line 10: Use non-int type variable as condition.
+Semantic Error at line 11: Use non-int type variable as condition.
+Semantic Error at line 14: Use non-int type variable as condition.
+Semantic Error at line 15: Use non-int type variable as condition.

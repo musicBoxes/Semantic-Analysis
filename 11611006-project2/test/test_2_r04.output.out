@@ -1,0 +1,2 @@
+Error type 4 at Line 7: Function 'compare' is redefined
+Error type 8 at Line 15: Function’s return value type mismatches the declared type

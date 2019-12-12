@@ -1,0 +1,5 @@
+Error type 5 at Line 2: unmatching type on both sides of assignment
+Error type 5 at Line 7: unmatching type on both sides of assignment
+Error type 5 at Line 8: unmatching type on both sides of assignment
+Error type 7 at Line 9: Invalid operation 'PLUS' on non-number variables
+Error type 5 at Line 9: unmatching type on both sides of assignment

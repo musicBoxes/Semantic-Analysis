@@ -4,12 +4,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #define INT_MIN -0x80000000
-/*
-#ifndef LEX
-#define LEX
-#include "lex.yy.c"
-#endif
-*/
+
+#include"syntax.tab.h"
+
 typedef struct Type {
 	char name[32];
 	enum { PRIMITIVE, ARRAY, STRUCTURE, DIFFERENT, IGNORE } category;
@@ -19,6 +16,25 @@ typedef struct Type {
 		struct FieldList *structure;
 	};
 } Type;
+
+const Type INT_TYPE = {
+	.category = PRIMITIVE,
+	.primitive = INT
+};
+const Type CHAR_TYPE = {
+	.category = PRIMITIVE,
+	.primitive = CHAR
+};
+const Type FLOAT_TYPE = {
+	.category = PRIMITIVE,
+	.primitive = FLOAT
+};
+const Type DIFFERENT_TYPE = {
+	.category = DIFFERENT
+};
+const Type IGNORE_TYPE = {
+	.category = IGNORE
+};
 
 typedef struct Array {
 	struct Type *base;
@@ -51,7 +67,7 @@ int isSameType(const Type *a, const Type *b){
 		break;
 		
 		case ARRAY:
-			return a->array->base == b->array->base;
+			return a->array->size == b->array->size && isSameType(a->array->base, b->array->base);
 		break;
 		
 		case STRUCTURE:{
@@ -118,10 +134,6 @@ void list_link(FieldList *firstHead, FieldList *secondHead){
 	secondHead->next = NULL;
 }
 
-void list_commonLink(FieldList *firstHead, FieldList *secondHead){
-	list_getLast(firstHead)->next = secondHead->next;
-}
-
 FieldList* list_findByName(FieldList *head, char *name){
 	if (head == NULL) return NULL;
 	FieldList* cur = head->next;
@@ -136,8 +148,17 @@ FieldList* list_findByName(FieldList *head, char *name){
 void list_clear(FieldList* head){
 	FieldList* cur = head->next;
 	head->next = NULL;
-	while (cur != NULL){
+	/*while (cur != NULL){
 		cur = cur->next;
+	}*/
+	FieldList* next;
+	if (strcmp(head->name, "return") || // retList just record lineno, not FieldList*
+		strcmp(head->name, "functionArguments")){ // funcArgs do not use this union field
+		while (cur != NULL){
+			next = cur->next;
+			free(cur);
+			cur = next;
+		}
 	}
 }
 #endif
